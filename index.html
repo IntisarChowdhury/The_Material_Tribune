@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Material Tribune — Science & Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Playfair+Display+SC:wght@400;700&family=IM+Fell+English:ital@0;1&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Special+Elite&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.27.1/plotly.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   ROOT — NEWSPAPER PALETTE
+═══════════════════════════════════════════════ */
+:root {
+  --ink:       #1a1008;
+  --ink2:      #2d2010;
+  --ink3:      #4a3820;
+  --paper:     #f5f0e8;
+  --paper2:    #ede8d8;
+  --paper3:    #e5ddc8;
+  --cream:     #faf7f0;
+  --rule:      #1a1008;
+  --rule-thin: rgba(26,16,8,0.25);
+  --accent-red:#8b1a1a;
+  --accent-gold:#b8860b;
+  --accent-blue:#1a3a5c;
+  --col-gap:   1.4rem;
+  --serif:     'Source Serif 4', Georgia, serif;
+  --display:   'Playfair Display', Georgia, serif;
+  --display-sc:'Playfair Display SC', Georgia, serif;
+  --blackletter:'UnifrakturMaguntia', serif;
+  --mono:      'Special Elite', 'Courier New', monospace;
+  --sans:      'Oswald', sans-serif;
+}
+[data-theme="dark"] {
+  --ink:       #f0e8d8;
+  --ink2:      #d8c8a8;
+  --ink3:      #a89878;
+  --paper:     #141008;
+  --paper2:    #1e1808;
+  --paper3:    #281e0c;
+  --cream:     #100e06;
+  --rule:      #f0e8d8;
+  --rule-thin: rgba(240,232,216,0.2);
+  --accent-red:#c44;
+  --accent-gold:#c8960c;
+  --accent-blue:#5588bb;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--serif);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.55;
+  /* Subtle paper texture */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--paper2)}
+::-webkit-scrollbar-thumb{background:var(--ink3)}
+
+/* ═══════════════════════════════════════════════
+   NEWSPAPER UTILITIES
+═══════════════════════════════════════════════ */
+.rule-full   {border:none;border-top:3px double var(--rule);margin:0}
+.rule-thick  {border:none;border-top:2px solid var(--rule);margin:0}
+.rule-thin   {border:none;border-top:1px solid var(--rule-thin);margin:0}
+.rule-triple {height:6px;border-top:3px solid var(--rule);border-bottom:1px solid var(--rule);margin:0}
+
+.column-rule {border-right:1px solid var(--rule-thin)}
+.drop-cap::first-letter {
+  float:left;font-family:var(--blackletter);font-size:5.2em;
+  line-height:0.72;padding:0.06em 0.08em 0 0;color:var(--ink);
+}
+.byline{font-family:var(--mono);font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin:0.4rem 0}
+
+/* ═══════════════════════════════════════════════
+   TOP UTILITY BAR
+═══════════════════════════════════════════════ */
+.utility-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.3rem 2rem;
+  border-bottom:1px solid var(--rule-thin);
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:1px;
+  color:var(--ink3);
+  background:var(--paper);
+}
+.util-links{display:flex;gap:1.2rem}
+.util-links span{cursor:pointer;transition:color 0.2s}
+.util-links span:hover{color:var(--accent-red)}
+.theme-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:2px 10px;border:1px solid var(--rule-thin);border-radius:2px;
+  cursor:pointer;font-size:0.62rem;letter-spacing:1px;
+  transition:background 0.2s;
+}
+.theme-pill:hover{background:var(--paper3)}
+.theme-dot{width:7px;height:7px;border-radius:50%;background:var(--ink3)}
+
+/* ═══════════════════════════════════════════════
+   MASTHEAD
+═══════════════════════════════════════════════ */
+.masthead{
+  padding:0.8rem 2rem 0;
+  text-align:center;
+  position:relative;
+  background:var(--paper);
+}
+.masthead-top{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:1rem;
+  padding-bottom:0.6rem;
+  border-bottom:1px solid var(--rule-thin);
+  margin-bottom:0.5rem;
+}
+.masthead-left{text-align:left;font-family:var(--mono);font-size:0.6rem;line-height:1.7;color:var(--ink3)}
+.masthead-right{text-align:right;font-family:var(--mono);font-size:0.6rem;line-height:1.7;color:var(--ink3)}
+.paper-name{
+  font-family:var(--blackletter);
+  font-size:clamp(2.8rem,6vw,5.5rem);
+  line-height:1;letter-spacing:-1px;
+  color:var(--ink);
+  text-shadow:1px 1px 0 rgba(0,0,0,0.08);
+}
+.paper-name em{color:var(--accent-red);font-style:normal}
+.masthead-rule-block{
+  display:flex;flex-direction:column;gap:2px;margin:0.4rem 0;
+}
+.masthead-tagline{
+  font-family:var(--display);font-style:italic;
+  font-size:0.82rem;letter-spacing:3px;
+  color:var(--ink3);text-align:center;
+  padding:0.2rem 0;
+}
+.masthead-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.3rem 0;
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.5px;
+  color:var(--ink3);
+}
+.edition-badge{
+  background:var(--ink);color:var(--paper);
+  padding:2px 8px;font-family:var(--mono);font-size:0.6rem;letter-spacing:1px;
+}
+
+/* NAV SECTIONS BAR */
+.sections-nav{
+  display:flex;align-items:stretch;
+  border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);
+  overflow-x:auto;scrollbar-width:none;
+}
+.sections-nav::-webkit-scrollbar{display:none}
+.sec-tab{
+  padding:0.45rem 1.2rem;
+  font-family:var(--sans);font-size:0.72rem;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;
+  border-right:1px solid var(--rule-thin);
+  color:var(--ink3);cursor:pointer;
+  transition:background 0.15s,color 0.15s;
+  white-space:nowrap;
+}
+.sec-tab:hover{background:var(--paper3)}
+.sec-tab.active{background:var(--ink);color:var(--paper)}
+.sec-tab:last-child{border-right:none;margin-left:auto}
+
+/* ═══════════════════════════════════════════════
+   MAIN NEWSPAPER BODY
+═══════════════════════════════════════════════ */
+.paper-body{
+  max-width:1380px;margin:0 auto;
+  padding:0 1.5rem 4rem;
+}
+
+/* SECTION PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* ═══════════════════════════════════════════════
+   FRONT PAGE LAYOUT — TRUE NEWSPAPER COLUMNS
+═══════════════════════════════════════════════ */
+.front-page-grid{
+  display:grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap:0;
+  border-bottom:1px solid var(--rule-thin);
+  padding-top:0.8rem;
+}
+
+/* LEFT RAIL — index column */
+.rail-left{
+  border-right:2px solid var(--rule);
+  padding-right:1rem;
+}
+.rail-right{
+  border-left:2px solid var(--rule);
+  padding-left:1rem;
+}
+.rail-hed{
+  font-family:var(--display-sc);font-size:0.65rem;font-weight:700;
+  letter-spacing:2px;text-align:center;
+  border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.6rem;
+}
+
+/* INDEX ITEM */
+.idx-item{
+  border-bottom:1px solid var(--rule-thin);padding:0.45rem 0;
+  cursor:pointer;transition:background 0.15s;
+}
+.idx-item:hover{background:var(--paper3);padding-left:4px}
+.idx-cat{font-family:var(--sans);font-size:0.58rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-red)}
+.idx-name{font-family:var(--display);font-size:0.78rem;line-height:1.2;margin-top:2px}
+.idx-prop{font-family:var(--mono);font-size:0.6rem;color:var(--ink3);margin-top:2px}
+
+/* CENTRE — main story area */
+.centre-col{padding:0 1.4rem}
+
+/* ═══════════════════════════════════════════════
+   WELCOME / FRONT PAGE SPLASH
+═══════════════════════════════════════════════ */
+.splash-head{
+  text-align:center;padding:1.2rem 0 0.8rem;
+  border-bottom:3px double var(--rule);margin-bottom:1rem;
+}
+.splash-kicker{
+  font-family:var(--sans);font-size:0.65rem;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;color:var(--accent-red);
+  margin-bottom:0.4rem;
+}
+.splash-hed{
+  font-family:var(--display);font-size:clamp(2rem,4.5vw,3.8rem);
+  font-weight:900;line-height:1.0;
+  color:var(--ink);margin-bottom:0.5rem;
+}
+.splash-hed em{font-style:italic;color:var(--accent-red)}
+.splash-deck{
+  font-family:var(--display);font-style:italic;
+  font-size:1.05rem;color:var(--ink3);
+  max-width:600px;margin:0 auto 0.6rem;line-height:1.5;
+}
+
+/* STATS ROW */
+.stats-ribbon{
+  display:flex;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  margin:0.8rem 0;
+}
+.stat-cell{
+  flex:1;text-align:center;padding:0.6rem 0.5rem;
+  border-right:1px solid var(--rule-thin);
+}
+.stat-cell:last-child{border-right:none}
+.stat-num{
+  font-family:var(--blackletter);font-size:2.2rem;
+  color:var(--ink);line-height:1;
+}
+.stat-lbl{font-family:var(--mono);font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+
+/* ═══════════════════════════════════════════════
+   CAT GRID — Category selection tiles
+═══════════════════════════════════════════════ */
+.cat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--rule);
+  margin:1rem 0;
+}
+.cat-tile{
+  padding:1rem 0.8rem;
+  border-right:1px solid var(--rule-thin);
+  border-bottom:1px solid var(--rule-thin);
+  cursor:pointer;transition:background 0.15s;
+  position:relative;overflow:hidden;
+}
+.cat-tile:nth-child(3n){border-right:none}
+.cat-tile:nth-last-child(-n+3){border-bottom:none}
+.cat-tile:hover{background:var(--paper3)}
+.cat-tile-icon{font-size:1.6rem;margin-bottom:0.4rem}
+.cat-tile-name{
+  font-family:var(--display-sc);font-size:0.78rem;font-weight:700;
+  letter-spacing:1px;margin-bottom:0.2rem;
+}
+.cat-tile-count{font-family:var(--mono);font-size:0.6rem;color:var(--ink3)}
+.cat-tile-bar{position:absolute;bottom:0;left:0;height:3px;width:100%}
+
+/* ═══════════════════════════════════════════════
+   MATERIAL DETAIL — Full Article Layout
+═══════════════════════════════════════════════ */
+#mat-detail{display:none}
+
+/* ARTICLE MASTHEAD */
+.art-section-label{
+  text-align:center;padding:0.4rem;
+  font-family:var(--sans);font-size:0.6rem;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);
+  margin-bottom:0.5rem;
+}
+.art-kicker{
+  text-align:center;
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent-red);margin-bottom:0.3rem;
+}
+.art-hed{
+  text-align:center;
+  font-family:var(--display);font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:900;line-height:0.95;
+  color:var(--ink);margin-bottom:0.5rem;
+}
+.art-deck{
+  text-align:center;
+  font-family:var(--display);font-style:italic;font-size:1.1rem;
+  color:var(--ink3);max-width:700px;margin:0 auto 0.8rem;line-height:1.5;
+}
+.art-byline-row{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:0.4rem 0;margin-bottom:1rem;
+}
+
+/* ARTICLE COLUMNS */
+.art-cols{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  margin-bottom:1rem;
+}
+.art-col{
+  padding:0 1rem;
+  border-right:1px solid var(--rule-thin);
+  font-size:0.83rem;line-height:1.65;
+  text-align:justify;
+}
+.art-col:first-child{padding-left:0}
+.art-col:last-child{border-right:none;padding-right:0}
+.art-col p{margin-bottom:0.7rem}
+.art-col p:first-child{margin-top:0}
+
+/* PULLQUOTE */
+.pullquote{
+  border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);
+  padding:0.8rem 0.4rem;margin:1rem 0;text-align:center;
+  font-family:var(--display);font-style:italic;font-size:1.05rem;
+  line-height:1.4;color:var(--ink);
+}
+.pullquote::before{content:'\201C';font-size:2rem;line-height:0;vertical-align:-0.4em;margin-right:4px;color:var(--accent-red)}
+.pullquote::after{content:'\201D';font-size:2rem;line-height:0;vertical-align:-0.4em;margin-left:4px;color:var(--accent-red)}
+
+/* FULL-WIDTH PHOTO BOX */
+.photo-box{
+  border:1px solid var(--rule-thin);
+  margin:1rem 0;overflow:hidden;
+}
+.photo-frame{
+  height:200px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:6rem;position:relative;
+  background:linear-gradient(135deg,var(--paper2),var(--paper3));
+}
+.photo-frame::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,0.015) 4px,rgba(0,0,0,0.015) 8px);
+}
+.photo-caption{
+  padding:0.4rem 0.6rem;border-top:1px solid var(--rule-thin);
+  font-family:var(--mono);font-size:0.62rem;color:var(--ink3);
+  background:var(--paper2);
+}
+
+/* QUICK-FACTS BOX (sidebar box style) */
+.facts-box{
+  border:2px solid var(--rule);margin-bottom:1rem;
+}
+.facts-box-hed{
+  background:var(--ink);color:var(--paper);
+  padding:0.3rem 0.6rem;
+  font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px;
+  text-align:center;
+}
+.facts-box-body{padding:0.6rem}
+.fact-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:0.35rem 0;border-bottom:1px dotted var(--rule-thin);
+  font-size:0.78rem;
+}
+.fact-row:last-child{border-bottom:none}
+.fact-label{font-family:var(--sans);font-size:0.62rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3)}
+.fact-value{font-family:var(--display);font-weight:700;font-size:0.88rem;color:var(--ink)}
+.fact-unit{font-family:var(--mono);font-size:0.6rem;color:var(--ink3);margin-left:3px}
+
+/* PROPS TABLE */
+.props-box{border:1px solid var(--rule-thin);margin:1rem 0}
+.props-box-hed{background:var(--paper2);padding:0.3rem 0.6rem;border-bottom:1px solid var(--rule);font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px}
+.props-tbl{width:100%;border-collapse:collapse;font-size:0.78rem}
+.props-tbl th{padding:0.3rem 0.6rem;font-family:var(--sans);font-size:0.6rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);background:var(--paper2);text-align:left}
+.props-tbl td{padding:0.35rem 0.6rem;border-bottom:1px dotted var(--rule-thin)}
+.props-tbl tr:hover td{background:var(--paper3)}
+.prop-bar{height:5px;background:var(--paper3);border-radius:0;margin-top:3px;overflow:hidden}
+.prop-bar-fill{height:100%;transition:width 0.6s ease}
+.val-num{font-family:var(--display);font-weight:700}
+
+/* CHARTS */
+.chart-box{border:1px solid var(--rule-thin);margin:1rem 0}
+.chart-box-hed{background:var(--paper2);padding:0.3rem 0.6rem;border-bottom:1px solid var(--rule);font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px}
+.chart-inner{padding:0.5rem;background:var(--cream)}
+.chart-plot{width:100%;height:240px}
+
+/* CHARTS 2-COL */
+.chart-2col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+
+/* TIMELINE BOX */
+.timeline-box{border:1px solid var(--rule-thin);margin:1rem 0;padding:0.8rem}
+.tl-hed{font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px;border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.6rem}
+.tl-row{display:flex;gap:0.8rem;padding:0.4rem 0;border-bottom:1px dotted var(--rule-thin);font-size:0.78rem}
+.tl-year{font-family:var(--display);font-weight:700;white-space:nowrap;color:var(--accent-red);min-width:70px}
+.tl-text{flex:1;line-height:1.4}
+
+/* NEWS SECTION — 3 col newspaper style */
+.news-section{margin:1.5rem 0}
+.news-section-hed{
+  font-family:var(--display-sc);font-size:0.65rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  text-align:center;padding:0.3rem;
+  border-top:2px solid var(--rule);border-bottom:1px solid var(--rule);
+  margin-bottom:0.8rem;color:var(--accent-red);
+}
+.news-cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0}
+.news-col{padding:0 1rem;border-right:1px solid var(--rule-thin);font-size:0.8rem}
+.news-col:first-child{padding-left:0}
+.news-col:last-child{border-right:none;padding-right:0}
+.news-hed{font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:0.3rem}
+.news-deck{font-family:var(--display);font-style:italic;font-size:0.78rem;color:var(--ink3);margin-bottom:0.4rem;line-height:1.3}
+.news-body{font-size:0.78rem;line-height:1.6;text-align:justify}
+.news-tag{display:inline-block;background:var(--accent-red);color:white;padding:1px 6px;font-family:var(--sans);font-size:0.55rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.3rem}
+.news-date{font-family:var(--mono);font-size:0.6rem;color:var(--ink3);margin-top:0.4rem}
+.news-mini{padding:0.5rem 0;border-bottom:1px solid var(--rule-thin)}
+.news-mini:last-child{border-bottom:none}
+.news-mini-hed{font-family:var(--display);font-weight:700;font-size:0.83rem;line-height:1.2;margin-bottom:0.2rem}
+.news-mini-body{font-size:0.73rem;line-height:1.5;color:var(--ink3)}
+
+/* APPS BOX */
+.apps-box{border:1px solid var(--rule-thin);margin:1rem 0}
+.apps-box-hed{background:var(--paper2);padding:0.3rem 0.6rem;border-bottom:1px solid var(--rule);font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px}
+.apps-grid{display:flex;flex-wrap:wrap;gap:0;padding:0.3rem}
+.app-tag{
+  padding:0.25rem 0.6rem;margin:0.15rem;
+  border:1px solid var(--rule-thin);
+  font-family:var(--mono);font-size:0.65rem;
+  background:var(--paper2);cursor:default;
+  transition:background 0.15s;
+}
+.app-tag:hover{background:var(--paper3)}
+
+/* FUN FACTS */
+.funfacts-box{border:2px solid var(--ink);margin:1rem 0;padding:0.8rem}
+.funfacts-hed{font-family:var(--display-sc);font-size:0.7rem;font-weight:700;letter-spacing:1px;border-bottom:1px solid var(--rule);padding-bottom:0.3rem;margin-bottom:0.5rem;text-align:center}
+.ff-item{font-size:0.78rem;line-height:1.5;padding:0.3rem 0;border-bottom:1px dotted var(--rule-thin)}
+.ff-item:last-child{border-bottom:none}
+.ff-item::before{content:'★ ';color:var(--accent-gold);font-size:0.65rem}
+
+/* ═══════════════════════════════════════════════
+   LAB PAGE — Scientific Journal Insert
+═══════════════════════════════════════════════ */
+.lab-page{padding:1rem 0}
+
+/* LAB MASTHEAD — like a journal */
+.lab-masthead{
+  text-align:center;
+  border:3px double var(--rule);
+  padding:1.2rem;margin-bottom:1rem;
+  background:var(--paper2);
+  position:relative;
+}
+.lab-journal-name{
+  font-family:var(--display);font-style:italic;font-weight:400;
+  font-size:clamp(1.6rem,4vw,2.8rem);
+  color:var(--accent-blue);letter-spacing:2px;
+  margin-bottom:0.2rem;
+}
+.lab-issue{
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink3);
+}
+.lab-headline{
+  font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:900;line-height:1.0;margin:0.6rem 0 0.3rem;
+}
+.lab-status-bar{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--rule);padding:0.25rem 0.8rem;
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;
+  background:var(--paper);margin-top:0.5rem;
+}
+.status-led{width:7px;height:7px;border-radius:50%;background:#228833;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* LAB TWO COLUMN */
+.lab-layout{display:grid;grid-template-columns:320px 1fr;gap:0;border:1px solid var(--rule-thin)}
+.lab-sidebar{border-right:1px solid var(--rule);background:var(--paper2)}
+.lab-main{background:var(--paper)}
+
+/* LAB SIDEBAR SECTIONS */
+.lab-sidebar-sec{border-bottom:1px solid var(--rule)}
+.lab-sec-hed{
+  padding:0.4rem 0.7rem;
+  font-family:var(--display-sc);font-size:0.65rem;font-weight:700;letter-spacing:1px;
+  background:var(--ink);color:var(--paper);
+}
+.lab-sec-body{padding:0.7rem}
+
+/* COMPONENT */
+.mix-comp{
+  border:1px solid var(--rule-thin);margin-bottom:0.6rem;
+  background:var(--paper);
+}
+.mix-comp-head{
+  display:flex;align-items:center;gap:0.4rem;
+  padding:0.3rem 0.5rem;border-bottom:1px solid var(--rule-thin);
+  background:var(--paper2);
+}
+.comp-num{
+  font-family:var(--display);font-weight:700;font-size:0.75rem;
+  background:var(--ink);color:var(--paper);width:18px;height:18px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.mat-select{
+  flex:1;background:transparent;border:none;
+  font-family:var(--serif);font-size:0.75rem;color:var(--ink);
+  outline:none;cursor:pointer;
+}
+.mat-select:focus{outline:1px solid var(--ink3)}
+.remove-comp{
+  width:18px;height:18px;
+  border:1px solid var(--rule-thin);
+  font-size:0.7rem;color:var(--ink3);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;flex-shrink:0;
+}
+.remove-comp:hover{background:var(--accent-red);color:white;border-color:var(--accent-red)}
+.mix-comp-body{padding:0.4rem 0.5rem}
+.slider-row{display:flex;align-items:center;gap:0.5rem}
+.mix-slider{
+  flex:1;-webkit-appearance:none;height:4px;
+  background:var(--paper3);outline:none;
+  cursor:pointer;
+}
+.mix-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;
+  background:var(--ink);cursor:pointer;
+  border:2px solid var(--paper);
+  box-shadow:0 1px 3px rgba(0,0,0,0.3);
+}
+.pct-lbl{font-family:var(--display);font-weight:700;font-size:0.85rem;min-width:38px;text-align:right}
+
+/* TOTAL BAR */
+.total-section{padding:0.7rem;border-top:1px solid var(--rule)}
+.total-bar{height:8px;background:var(--paper3);border:1px solid var(--rule-thin);overflow:hidden;margin:0.3rem 0}
+.total-bar-fill{height:100%;transition:width 0.3s,background 0.3s}
+.total-label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.62rem;color:var(--ink3)}
+.total-num{font-family:var(--display);font-weight:700;font-size:1rem}
+
+/* BUTTONS */
+.btn-add{
+  width:100%;padding:0.4rem;margin-bottom:0.4rem;
+  border:1px dashed var(--rule-thin);
+  font-family:var(--mono);font-size:0.65rem;letter-spacing:1px;
+  text-transform:uppercase;color:var(--ink3);
+  background:transparent;transition:all 0.15s;
+}
+.btn-add:hover{background:var(--paper3);border-color:var(--ink3);color:var(--ink)}
+
+.btn-mix{
+  width:100%;padding:0.7rem;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--display-sc);font-size:0.8rem;font-weight:700;letter-spacing:2px;
+  border:2px solid var(--ink);
+  transition:all 0.2s;position:relative;overflow:hidden;
+}
+.btn-mix:hover{background:var(--accent-red);border-color:var(--accent-red)}
+.btn-mix:active{transform:scale(0.99)}
+
+/* FORMULA ACCORDION */
+.formula-acc{border-top:1px solid var(--rule)}
+.formula-toggle{
+  width:100%;padding:0.4rem 0.7rem;text-align:left;
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink3);display:flex;justify-content:space-between;
+  background:var(--paper2);transition:background 0.15s;
+}
+.formula-toggle:hover{background:var(--paper3)}
+.formula-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease;background:var(--paper)}
+.formula-body.open{max-height:400px}
+.formula-body-inner{padding:0.6rem 0.7rem;font-size:0.72rem}
+.formula-eq{
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--accent-blue);
+  background:var(--paper2);border-left:2px solid var(--accent-blue);
+  padding:0.25rem 0.5rem;margin:0.3rem 0;
+}
+.formula-note{color:var(--ink3);margin-bottom:0.3rem;line-height:1.4}
+
+/* LAB MAIN PANEL */
+.lab-main-inner{padding:1.2rem 1.5rem}
+
+.results-placeholder{
+  text-align:center;padding:3rem 1rem;
+  border:1px dashed var(--rule-thin);margin:1rem 0;
+}
+.rph-icon{font-size:3rem;margin-bottom:0.8rem}
+.rph-hed{font-family:var(--display);font-size:1.5rem;margin-bottom:0.4rem}
+.rph-desc{font-family:var(--serif);font-style:italic;font-size:0.85rem;color:var(--ink3)}
+
+/* RESULT ARTICLE */
+.result-art-hed{
+  font-family:var(--display);font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:900;line-height:1;
+  border-bottom:3px double var(--rule);padding-bottom:0.5rem;margin-bottom:0.8rem;
+}
+.result-composition{
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;
+  color:var(--ink3);margin-bottom:0.6rem;
+}
+
+/* RESULT PROP CARDS — newspaper classified ad style */
+.result-props-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--rule);margin:1rem 0;
+}
+.rpc{
+  padding:0.6rem 0.5rem;text-align:center;
+  border-right:1px solid var(--rule-thin);
+  border-bottom:1px solid var(--rule-thin);
+}
+.rpc:nth-child(4n){border-right:none}
+.rpc:nth-last-child(-n+4){border-bottom:none}
+.rpc-label{font-family:var(--sans);font-size:0.55rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.rpc-val{font-family:var(--display);font-weight:700;font-size:1.4rem;line-height:1;color:var(--ink)}
+.rpc-unit{font-family:var(--mono);font-size:0.58rem;color:var(--ink3)}
+
+/* BEAKERS */
+.beakers-section{
+  border:1px solid var(--rule-thin);padding:1rem;
+  background:var(--paper2);margin:1rem 0;text-align:center;
+}
+.beakers-hed{font-family:var(--display-sc);font-size:0.65rem;font-weight:700;letter-spacing:1.5px;margin-bottom:0.8rem;color:var(--ink3)}
+.beakers-row{display:flex;align-items:flex-end;justify-content:center;gap:0.5rem}
+.beaker-wrap{display:flex;flex-direction:column;align-items:center;gap:0.3rem}
+.beaker{
+  width:50px;height:80px;
+  border:2px solid var(--ink);border-top:none;
+  border-radius:0 0 6px 6px;
+  position:relative;overflow:hidden;
+  background:var(--paper);
+}
+.beaker-fill{position:absolute;bottom:0;left:0;right:0;transition:height 0.6s ease}
+.beaker-label{font-family:var(--mono);font-size:0.55rem;text-align:center;max-width:60px;line-height:1.2;color:var(--ink3)}
+.beaker-pct{font-family:var(--display);font-weight:700;font-size:0.75rem;color:var(--ink)}
+.mix-arrow{font-family:var(--display);font-size:2rem;color:var(--ink3);align-self:center;margin:0 0.5rem}
+.beaker-result{
+  width:70px;height:110px;
+  border:2px solid var(--accent-blue);border-top:none;
+  border-radius:0 0 8px 8px;
+  position:relative;overflow:hidden;
+  background:var(--paper);
+}
+
+/* EXPORT BTN */
+.btn-export{
+  padding:0.4rem 1rem;
+  border:1px solid var(--rule);
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink3);background:var(--paper2);transition:all 0.15s;
+}
+.btn-export:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* LAB CHART 2 COL */
+.lab-chart2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+
+/* ═══════════════════════════════════════════════
+   COMPARE PAGE
+═══════════════════════════════════════════════ */
+.compare-page{padding:1rem 0}
+.compare-hed-row{
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:2px solid var(--rule);padding-bottom:0.5rem;margin-bottom:1rem;
+}
+.compare-hed{font-family:var(--display);font-size:2rem;font-weight:900}
+.compare-select{
+  font-family:var(--mono);font-size:0.7rem;padding:0.3rem 0.6rem;
+  background:var(--paper2);border:1px solid var(--rule-thin);
+  color:var(--ink);cursor:pointer;
+}
+.compare-select:focus{outline:1px solid var(--ink)}
+
+.compare-wrap{overflow-x:auto}
+.compare-tbl{width:100%;border-collapse:collapse;font-size:0.75rem}
+.compare-tbl th{
+  padding:0.35rem 0.6rem;background:var(--ink);color:var(--paper);
+  font-family:var(--sans);font-size:0.58rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  border-right:1px solid rgba(255,255,255,0.1);text-align:left;white-space:nowrap;
+}
+.compare-tbl td{
+  padding:0.35rem 0.6rem;border-bottom:1px solid var(--rule-thin);
+  border-right:1px solid var(--rule-thin);
+}
+.compare-tbl tr:hover td{background:var(--paper3)}
+.compare-tbl .best{color:var(--accent-red);font-weight:700}
+.mat-name-cell{cursor:pointer;font-family:var(--display);font-weight:700}
+.mat-name-cell:hover{text-decoration:underline;color:var(--accent-red)}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR MATERIAL LIST (right rail)
+═══════════════════════════════════════════════ */
+#mat-index{max-height:600px;overflow-y:auto;scrollbar-width:thin}
+
+/* ═══════════════════════════════════════════════
+   OVERLAY
+═══════════════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;flex-direction:column;gap:1rem;
+}
+.overlay.show{display:flex}
+.overlay-spinner{
+  width:50px;height:50px;
+  border:3px solid rgba(255,255,255,0.2);
+  border-top:3px solid white;
+  border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay-label{font-family:var(--mono);color:white;font-size:0.8rem;letter-spacing:2px}
+
+/* NOTIFICATION */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  background:var(--ink);color:var(--paper);
+  padding:0.6rem 1.2rem;border-left:4px solid var(--accent-red);
+  font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;
+  z-index:8000;transform:translateX(120%);transition:transform 0.3s ease;
+  max-width:320px;box-shadow:4px 4px 0 rgba(0,0,0,0.3);
+}
+.toast.show{transform:translateX(0)}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .front-page-grid{grid-template-columns:1fr}
+  .rail-left,.rail-right{display:none}
+  .art-cols{grid-template-columns:1fr 1fr}
+  .lab-layout{grid-template-columns:1fr}
+  .lab-sidebar{border-right:none;border-bottom:1px solid var(--rule)}
+  .result-props-grid{grid-template-columns:repeat(2,1fr)}
+  .lab-chart2{grid-template-columns:1fr}
+  .chart-2col{grid-template-columns:1fr}
+  .news-cols{grid-template-columns:1fr}
+  .news-col{border-right:none;border-bottom:1px solid var(--rule-thin);padding:0.5rem 0}
+  .masthead-top{grid-template-columns:1fr}
+  .masthead-left,.masthead-right{display:none}
+}
+@media(max-width:768px){
+  .paper-body{padding:0 0.8rem 4rem}
+  .art-cols{grid-template-columns:1fr}
+  .art-col{border-right:none;padding:0}
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .sections-nav{flex-wrap:nowrap}
+  .result-props-grid{grid-template-columns:repeat(2,1fr)}
+  .compare-tbl{font-size:0.65rem}
+  .utility-bar{padding:0.3rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- UTILITY BAR -->
+<div class="utility-bar">
+  <div class="util-links">
+    <span onclick="switchPage('hub')">📚 Knowledge Hub</span>
+    <span onclick="switchPage('lab')">⚗ Virtual Lab</span>
+    <span onclick="switchPage('compare')">⚖ Compare</span>
+  </div>
+  <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:1px" id="live-date"></div>
+  <div class="theme-pill" onclick="toggleTheme()">
+    <div class="theme-dot"></div>
+    <span id="theme-label">NIGHT MODE</span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<header class="masthead" id="top">
+  <div class="masthead-top">
+    <div class="masthead-left">
+      "The World's Most Remarkable Materials,<br>
+      Reported With Scientific Precision"<br>
+      <strong>Est. 2024 · Vol. I No. 1</strong>
+    </div>
+    <div>
+      <div class="paper-name">The <em>Material</em> Tribune</div>
+      <div class="masthead-tagline">Science · Engineering · Discovery · Innovation</div>
+    </div>
+    <div class="masthead-right">
+      <span class="edition-badge">LATE EDITION</span><br><br>
+      Temperature: Variable<br>
+      Tensile Stress: Rising<br>
+      Full Hardness Report p.4
+    </div>
+  </div>
+  <hr class="rule-triple">
+  <div class="masthead-meta">
+    <span>VOL. I … No. 001</span>
+    <span>© 2025 The Material Tribune Company</span>
+    <span id="meta-date">MATERIAL SCIENCE DAILY</span>
+    <span>120+ MATERIALS · FREE</span>
+  </div>
+
+  <!-- SECTION TABS -->
+  <nav class="sections-nav">
+    <div class="sec-tab active" onclick="switchPage('hub')">Front Page</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Metals')">Metals</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Polymers')">Polymers</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Ceramics')">Ceramics</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Composites')">Composites</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Smart Materials')">Smart Materials</div>
+    <div class="sec-tab" onclick="switchPage('hub');filterCat('Natural Materials')">Natural</div>
+    <div class="sec-tab" onclick="switchPage('lab')">⚗ Lab</div>
+    <div class="sec-tab" onclick="switchPage('compare')">⚖ Compare</div>
+  </nav>
+</header>
+
+<!-- ████████████████████████████████████████████
+     PAPER BODY
+████████████████████████████████████████████ -->
+<main class="paper-body">
+
+  <!-- ==============================
+       HUB PAGE
+  ============================== -->
+  <div class="page active" id="page-hub">
+    <div class="front-page-grid">
+
+      <!-- LEFT RAIL -->
+      <aside class="rail-left">
+        <div class="rail-hed">Materials Index</div>
+        <div id="mat-index-left"></div>
+      </aside>
+
+      <!-- CENTRE -->
+      <div class="centre-col">
+
+        <!-- FRONT PAGE SPLASH (shown before any material selected) -->
+        <div id="splash">
+          <div class="splash-head">
+            <div class="splash-kicker">Special Edition · Materials Science &amp; Engineering</div>
+            <h1 class="splash-hed">Mankind's Greatest<br><em>Materials</em> Revealed</h1>
+            <p class="splash-deck">From the obsidian blades of prehistoric hunters to quantum metamaterials bending the laws of physics — explore 120 materials that built civilisation and will define its future.</p>
+          </div>
+
+          <div class="stats-ribbon">
+            <div class="stat-cell">
+              <div class="stat-num">120+</div>
+              <div class="stat-lbl">Materials Documented</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-num">6</div>
+              <div class="stat-lbl">Major Categories</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-num">∞</div>
+              <div class="stat-lbl">Possible Mixtures</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-num">8</div>
+              <div class="stat-lbl">Properties Per Material</div>
+            </div>
+          </div>
+
+          <hr class="rule-thick" style="margin:0.8rem 0">
+          <div style="font-family:var(--display-sc);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-align:center;padding:0.3rem;color:var(--accent-red)">SELECT A CATEGORY TO BEGIN READING</div>
+          <hr class="rule-thin" style="margin:0.4rem 0 0.8rem">
+
+          <div class="cat-grid" id="cat-grid"></div>
+
+          <hr class="rule-thick" style="margin:1rem 0 0.6rem">
+          <div style="font-family:var(--display-sc);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-align:center;padding:0.3rem;color:var(--accent-red)">FEATURED MATERIALS — CLICK TO READ</div>
+          <hr class="rule-thin" style="margin:0.4rem 0 0.8rem">
+
+          <div id="featured-strip"></div>
+        </div>
+
+        <!-- MATERIAL DETAIL (hidden until selected) -->
+        <div id="mat-detail"></div>
+
+      </div><!-- /centre -->
+
+      <!-- RIGHT RAIL -->
+      <aside class="rail-right">
+        <div class="rail-hed">Quick Index</div>
+        <div id="mat-index-right"></div>
+      </aside>
+
+    </div><!-- /front-page-grid -->
+  </div><!-- /hub -->
+
+  <!-- ==============================
+       LAB PAGE
+  ============================== -->
+  <div class="page" id="page-lab">
+    <div class="lab-page">
+      <div class="lab-masthead">
+        <div class="lab-journal-name">Journal of Virtual Material Synthesis</div>
+        <div class="lab-issue">Volume I · Issue 1 · Computational Edition</div>
+        <hr class="rule-thick" style="margin:0.5rem 0">
+        <h2 class="lab-headline">MATERIAL MIXER LABORATORY</h2>
+        <p style="font-family:var(--display);font-style:italic;font-size:0.9rem;color:var(--ink3);margin-top:0.3rem">Rule of Mixtures · Voigt Model · Weighted Averages · Interactive Experiment</p>
+        <div class="lab-status-bar">
+          <div class="status-led"></div>
+          <span>LABORATORY SYSTEMS ONLINE — READY FOR EXPERIMENT</span>
+        </div>
+      </div>
+
+      <div class="lab-layout">
+        <!-- SIDEBAR -->
+        <div class="lab-sidebar">
+          <div class="lab-sidebar-sec">
+            <div class="lab-sec-hed">I. COMPOSITION CONTROL</div>
+            <div class="lab-sec-body">
+              <div id="mix-components"></div>
+              <button class="btn-add" onclick="addMixComp()">+ ADD COMPONENT</button>
+            </div>
+          </div>
+
+          <div class="total-section">
+            <div class="total-label">
+              <span>TOTAL COMPOSITION</span>
+              <span class="total-num" id="pct-total-num">0%</span>
+            </div>
+            <div class="total-bar"><div class="total-bar-fill" id="pct-fill" style="width:0%"></div></div>
+            <div id="pct-warn" style="font-family:var(--mono);font-size:0.6rem;color:var(--accent-red);display:none;margin-top:0.3rem">⚠ Must total exactly 100%</div>
+          </div>
+
+          <div class="lab-sidebar-sec">
+            <div class="lab-sec-hed">II. CALCULATION FORMULAS</div>
+            <div class="formula-acc">
+              <button class="formula-toggle" onclick="toggleFmla(this)">
+                <span>View Equations</span><span id="fmla-arrow">▶</span>
+              </button>
+              <div class="formula-body" id="fmla-body">
+                <div class="formula-body-inner">
+                  <div class="formula-eq">ρ_mix = Σ (Vᵢ · ρᵢ)</div>
+                  <div class="formula-note">Density — exact Rule of Mixtures</div>
+                  <div class="formula-eq">σ_UTS = Σ (Vᵢ · σᵢ)</div>
+                  <div class="formula-note">Tensile strength — linear mixture rule</div>
+                  <div class="formula-eq">E_mix = Σ (Vᵢ · Eᵢ)</div>
+                  <div class="formula-note">Elastic modulus — Voigt upper bound</div>
+                  <div class="formula-eq">k_mix = Σ (Vᵢ · kᵢ)</div>
+                  <div class="formula-note">Thermal conductivity — parallel model</div>
+                  <div class="formula-eq">Cost = Σ (Vᵢ · Cᵢ)</div>
+                  <div class="formula-note">Cost — volume-weighted average</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-sec-body" style="border-top:1px solid var(--rule)">
+            <button class="btn-mix" onclick="runMix()">⚗ CALCULATE MIXTURE</button>
+          </div>
+        </div><!-- /lab-sidebar -->
+
+        <!-- MAIN -->
+        <div class="lab-main">
+          <div class="lab-main-inner">
+            <div id="lab-results">
+              <div class="results-placeholder">
+                <div class="rph-icon">🧪</div>
+                <div class="rph-hed">Configure Mixture</div>
+                <div class="rph-desc">Select at least two materials, set percentages to total 100%, then press Calculate Mixture to see the computed properties, charts, and analysis.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /lab-layout -->
+    </div>
+  </div>
+
+  <!-- ==============================
+       COMPARE PAGE
+  ============================== -->
+  <div class="page" id="page-compare">
+    <div class="compare-page">
+      <div class="compare-hed-row">
+        <h2 class="compare-hed">Material Comparison Table</h2>
+        <div style="display:flex;gap:0.6rem;align-items:center">
+          <select class="compare-select" id="cmp-cat" onchange="renderCompare()">
+            <option value="all">All Categories</option>
+            <option>Metals</option><option>Polymers</option>
+            <option>Ceramics</option><option>Composites</option>
+            <option>Smart Materials</option><option>Natural Materials</option>
+          </select>
+        </div>
+      </div>
+      <div class="compare-wrap"><div id="compare-tbl-area"></div></div>
+      <div class="chart-box" style="margin-top:1.5rem">
+        <div class="chart-box-hed">ASHBY CHART — STRENGTH vs DENSITY (All Materials)</div>
+        <div class="chart-inner"><div id="ashby-chart" style="width:100%;height:480px"></div></div>
+      </div>
+    </div>
+  </div>
+
+</main><!-- /paper-body -->
+
+<!-- MIXING OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="overlay-spinner"></div>
+  <div class="overlay-label">COMPUTING MIXTURE PROPERTIES...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   MATERIALS DATABASE
+══════════════════════════════════════════════ */
+const MATS = [
+  {id:"steel",name:"Carbon Steel",cat:"Metals",emoji:"🔩",
+   density:7.85,tensile:600,yield:350,hardness:200,cost:0.6,thermal:50,elastic:210,elong:20,melting:1480,
+   tagline:"The backbone of modern civilisation",
+   story1:"Carbon steel, the union of iron and carbon in precise proportions, has been the workhorse of industry for over three thousand years. No material has shaped the built environment more profoundly. Its versatility stems from a deceptively simple principle: increase the carbon content and you increase hardness and strength, at the cost of ductility. Low-carbon steels bend without breaking; high-carbon steels hold the sharpest edges.",
+   story2:"The great cathedrals of Europe were built with iron tools. The Industrial Revolution ran on steel rails. The skyscrapers of Chicago and New York rose because steel could bear loads that masonry could not. Every container ship, every bridge, every automobile frame owes its existence to our mastery of iron and carbon. And today, green hydrogen steelmaking promises to produce this ancient material without a gram of carbon dioxide.",
+   story3:"Modern steelmakers produce over 3,500 distinct grades, from ultra-soft deep-drawing sheet for car doors to maraging steel harder than a surgical knife. The metallurgical toolkit includes heat treatment, alloying, and microstructure control at the nanometre scale — yet the underlying alchemy remains what a blacksmith in 800 BCE would recognise: iron, carbon, and fire.",
+   history:[{y:"~800 BCE",e:"Iron-carbon alloys first exploited by Hittite smiths"},{y:"1856",e:"Bessemer process enables mass steel production"},{y:"1913",e:"Brearley discovers stainless steel in Sheffield"},{y:"1969",e:"Steel used in Apollo lunar module"},{y:"2024",e:"H2-DRI steelmaking achieves commercial scale"}],
+   facts:["Steel is 100% recyclable — recycling uses 75% less energy than primary production","The Eiffel Tower grows 15 cm taller on hot summer days due to thermal expansion","Over 3,500 grades of steel exist today"],
+   apps:["🏗️ Construction","🚂 Railways","🚗 Automotive","⚓ Shipbuilding","🔧 Tooling","🌉 Bridges"],
+   news:[{tag:"GREEN",hed:"Hydrogen Steelmaking Cuts CO₂ by 95%",deck:"SSAB demonstrates commercial H₂-DRI iron",body:"SSAB and LKAB have demonstrated commercial-scale hydrogen-reduced iron ore, eliminating coking coal entirely. The process produces only water vapour as a byproduct, cutting emissions by 95% versus conventional blast furnace steelmaking.",date:"March 2025"},{tag:"INNOVATION",hed:"3rd-Gen AHSS Reaches 2 GPa at Room Temperature",deck:"Advanced high-strength steel reshapes automotive engineering",body:"New third-generation advanced high-strength steels achieve 2 GPa tensile strength while retaining the formability needed for complex car-body stampings.",date:"January 2025"}]},
+
+  {id:"aluminum",name:"Aluminum",cat:"Metals",emoji:"✈️",
+   density:2.70,tensile:310,yield:275,hardness:95,cost:1.8,thermal:205,elastic:69,elong:17,melting:660,
+   tagline:"The metal that made flight possible",
+   story1:"Once rarer and more precious than gold — Napoleon III reserved aluminum cutlery for his most honoured guests while lesser diners ate with silver — aluminium hid in plain sight as Earth's most abundant metallic element. The Hall-Héroult electrolytic process of 1886 cracked the secret of cheap extraction and launched the age of aerospace.",
+   story2:"Light, corrosion-resistant, and infinitely recyclable, aluminium is the 21st-century structural metal. The Wright Brothers used an aluminium engine block in their first flight. The Saturn V rocket that carried men to the Moon was largely aluminium. Today, every Airbus A320 that crosses your sky contains tonnes of aluminium alloys engineered to survive decades of pressurisation cycles.",
+   story3:"The modern aluminium alloy family is vast. Series 2xxx alloys (with copper) provide aerospace strength. Series 7xxx alloys (zinc) push tensile strength above 700 MPa. Aluminium-lithium alloys push into territory once reserved for titanium. And recycling uses only 5% of the energy of primary smelting — making it a cornerstone of the circular economy.",
+   history:[{y:"1825",e:"Ørsted first isolates impure aluminium"},{y:"1886",e:"Hall-Héroult process independently discovered"},{y:"1903",e:"Wright Brothers use aluminium crankcase"},{y:"1940s",e:"WWII drives massive aircraft production"},{y:"2020s",e:"Al-Li alloys dominate new narrow-body jets"}],
+   facts:["Aluminium is 3× lighter than steel but can match its strength when alloyed","The Washington Monument cap is aluminium — placed when it was more precious than silver","Recycling aluminium uses only 5% of primary smelting energy"],
+   apps:["✈️ Aerospace","🚗 Automotive","🏠 Construction","📱 Electronics","🍺 Packaging","⚡ Power Lines"],
+   news:[{tag:"AEROSPACE",hed:"Al-Li Alloys Cut Aircraft Structural Weight by 25%",deck:"New generation alloys reach record specific stiffness",body:"Third-generation aluminium-lithium alloys with rare earth additions achieve unprecedented strength-to-weight ratios, enabling the next generation of narrow-body jets.",date:"February 2025"},{tag:"RECYCLING",hed:"Closed-Loop Aluminium Achieves 99.8% Purity",deck:"New sorting technology transforms recycling economics",body:"Advanced spectroscopic sorting separates aluminium alloy families at recycling plants, enabling direct reuse in aerospace applications without property penalty.",date:"January 2025"}]},
+
+  {id:"titanium",name:"Titanium",cat:"Metals",emoji:"🚀",
+   density:4.51,tensile:900,yield:830,hardness:341,cost:30,thermal:22,elastic:116,elong:14,melting:1668,
+   tagline:"Named for the gods — strong enough to deserve it",
+   story1:"Discovered in black Cornish sand in 1791 and named after the Titans of Greek mythology, titanium spent 150 years as a laboratory curiosity. The Kroll process of 1940 finally made commercial production viable, and the Cold War made it essential. The SR-71 Blackbird, the fastest air-breathing aircraft ever built, was 93% titanium.",
+   story2:"Titanium's defining properties are extraordinary: the strength of steel at 45% of the weight, perfect corrosion resistance in seawater and body fluids, and biocompatibility so complete that bone grows directly onto implant surfaces in a process called osseointegration. No other structural metal can claim all three simultaneously.",
+   story3:"Grade 5 titanium (Ti-6Al-4V) is the workhorse alloy, accounting for over 50% of all titanium used. Its combination of 900 MPa tensile strength, 4.4 g/cm³ density, and near-zero corrosion makes it the default choice for jet engine compressor discs, hip replacement joints, deep-sea remotely operated vehicles, and championship bicycles.",
+   history:[{y:"1791",e:"William Gregor discovers titanium oxide in Cornwall"},{y:"1910",e:"Hunter produces first pure titanium metal"},{y:"1948",e:"Kroll process enables industrial production"},{y:"1960s",e:"Cold War aerospace drives demand explosion"},{y:"1970s",e:"Medical titanium implants change orthopaedics forever"}],
+   facts:["Titanium is the only metal that can bond directly with bone","The SR-71 Blackbird was 93% titanium by structural weight","Grade 5 Ti-6Al-4V is as strong as high-strength steel at 45% of the weight"],
+   apps:["🚀 Aerospace","⚕️ Medical Implants","🌊 Marine","🎿 Sports","🏭 Chemical Plants","💍 Jewellery"],
+   news:[{tag:"ADDITIVE",hed:"3D-Printed Ti Lattice Passes Aerospace Qualification",deck:"EBM printing cuts structural weight 70%",body:"Electron beam melting of Ti-6Al-4V lattice structures achieves aerospace qualification with 70% less material than equivalent machined parts.",date:"February 2025"},{tag:"BIOMEDICAL",hed:"Nanotube Titanium Implants Accelerate Bone Healing",deck:"Surface nanostructures release drugs and guide cell growth",body:"Anodised TiO₂ nanotubes on implant surfaces deliver bone morphogenetic proteins locally, reducing healing time from 12 to 6 weeks in clinical trials.",date:"January 2025"}]},
+
+  {id:"copper",name:"Copper",cat:"Metals",emoji:"🔌",
+   density:8.96,tensile:210,yield:70,hardness:35,cost:8,thermal:401,elastic:130,elong:40,melting:1085,
+   tagline:"The conductor that powers civilisation",
+   story1:"Copper's 10,000-year history makes it humanity's oldest intentionally smelted metal. Its exceptional electrical conductivity — second only to silver among common metals — made it the essential material of every electrical revolution from Edison's first generators to the motors powering today's electric vehicles.",
+   story2:"The coming electrification of everything is a copper story. A conventional petrol car contains about 20 kg of copper. A full electric vehicle requires 80 kg. A wind turbine needs 3.5 tonnes. A single offshore wind farm requires more copper than a medium-sized mine produces in a year. The International Energy Agency projects copper demand doubling by 2035.",
+   story3:"Beyond electricity, copper is biologically active. Bacteria die within hours on copper surfaces — a property exploited in hospital door handles, rails, and surfaces to reduce healthcare-associated infections by over 50%. The human body contains about 80 mg of copper, essential to enzyme function, neural transmission, and connective tissue synthesis.",
+   history:[{y:"~8000 BCE",e:"Native copper hammered by Anatolian craftspeople"},{y:"~3300 BCE",e:"Bronze Age begins with copper-tin alloy"},{y:"1831",e:"Faraday uses copper wire in electromagnetic induction"},{y:"1880s",e:"Edison's electrical grid makes copper essential"},{y:"2020s",e:"EV revolution drives copper to record demand"}],
+   facts:["Copper is essential for life — the human body contains about 80 mg","The Statue of Liberty contains 80 tonnes of copper, now green from patina","Bacteria die within 2 hours on copper surfaces — hospitals are adopting it"],
+   apps:["⚡ Electrical Wiring","🔌 Electronics","🏗️ Plumbing","🔋 EV Motors","🌡️ Heat Exchangers","🪙 Coinage"],
+   news:[{tag:"EV",hed:"Electric Revolution Demands 10× More Copper by 2035",deck:"IEA projects critical supply gap without new mines",body:"The International Energy Agency projects copper demand doubling for electric vehicles and renewable energy. New deep-sea and recycled-source copper are being urgently explored.",date:"March 2025"},{tag:"HEALTH",hed:"Copper Surfaces Cut Hospital Infections by 58%",deck:"Clinical trial across 12 hospitals confirms antimicrobial effect",body:"Copper touch surfaces in ICUs and wards reduced healthcare-associated infections by 58% in the largest clinical trial to date. NHS and US hospitals are accelerating installation.",date:"January 2025"}]},
+
+  {id:"cfrp",name:"Carbon Fibre Composite",cat:"Composites",emoji:"🏎️",
+   density:1.6,tensile:1500,yield:1200,hardness:800,cost:60,thermal:5,elastic:135,elong:1.5,melting:400,
+   tagline:"Stronger than steel, lighter than aluminium",
+   story1:"Carbon fibre reinforced polymer combines the extraordinary axial strength of carbon fibre — which at the atomic scale approaches the theoretical limit of covalent bonding — with the toughness and formability of a polymer matrix. The result is a material with steel-like strength at one-quarter of its weight.",
+   story2:"The Boeing 787 Dreamliner is 50% CFRP by weight, enabling a 20% reduction in fuel burn over equivalent aluminium aircraft. Formula 1 monocoques are CFRP shells that have saved drivers' lives in impacts exceeding 100g. Wind turbine blades stretching 100 metres tip-to-tip are CFRP structures, harvesting energy from winds they must survive.",
+   story3:"The challenge that preoccupies the industry now is what happens at the end of life. Unlike metal, CFRP cannot be melted and recast. Chemical recycling via solvolysis — dissolving the resin in controlled solvents — recovers 90% of fibre properties. Thermoplastic matrix composites can be simply remelted. The circular economy for advanced composites is taking shape.",
+   history:[{y:"1958",e:"Roger Bacon produces first high-strength carbon fibres"},{y:"1963",e:"Royal Aircraft Establishment develops high-modulus fibres"},{y:"1992",e:"Boeing 777 empennage — first large CFRP structure"},{y:"2013",e:"787 Dreamliner enters service, 50% CFRP"},{y:"2024",e:"Chemical recycling enables closed-loop CFRP"}],
+   facts:["Carbon fibre is 5× stronger and 3× stiffer than steel at one-quarter the weight","CFRP tennis rackets enabled serve speeds exceeding 260 km/h","The precursor to most carbon fibre is polyacrylonitrile (PAN) textile fibre"],
+   apps:["✈️ Aerospace","🏎️ Motorsport","🚗 Automotive","🚴 Sports","🌬️ Wind Turbines","🏗️ Civil Structures"],
+   news:[{tag:"SUSTAINABILITY",hed:"Chemical Recycling Recovers Aerospace-Grade Fibre",deck:"Solvolysis recovers 90% of properties from aircraft waste",body:"New solvolysis plants in Germany and Japan recover carbon fibres from retired aircraft with 90% of original tensile strength retained, enabling reuse in secondary aerospace structures.",date:"January 2025"},{tag:"HYDROGEN",hed:"Type-IV CFRP Tank Stores Hydrogen at 700 Bar",deck:"BMW and Toyota advance H₂ pressure vessel technology",body:"CFRP-overwrapped pressure vessels for hydrogen storage achieve 700 bar at automotive scale, enabling 700 km range hydrogen fuel-cell vehicles with acceptable weight penalty.",date:"February 2025"}]},
+
+  {id:"nitinol",name:"Nitinol (Shape Memory Alloy)",cat:"Smart Materials",emoji:"🔄",
+   density:6.45,tensile:900,yield:200,hardness:300,cost:120,thermal:18,elastic:60,elong:8,melting:1310,
+   tagline:"The metal that remembers its shape",
+   story1:"Nitinol was discovered accidentally in 1959 when William Buehler, working at the Naval Ordnance Laboratory, bent a sample of nickel-titanium alloy and then held a flame to it. The sample snapped back to its original form. The discovery of the shape memory effect — a reversible martensitic phase transformation triggered by temperature — would eventually save hundreds of thousands of lives.",
+   story2:"Cardiovascular stents made from nitinol are crimped to a diameter of 1.5 mm, threaded through a catheter to a blocked coronary artery, and then expand to 3 mm when warmed by body heat to 37°C. The stent is never activated by any external signal — the body itself is the actuator. Nitinol sutures tighten as they warm to body temperature, eliminating the need for precise manual tying.",
+   story3:"Beyond medicine, nitinol wires are the muscles of morphing aircraft wings, the actuators in laparoscopic surgical instruments, and the springs in glasses frames that survive being sat upon. Its superelasticity — strains up to 8% recovered without permanent deformation — makes it uniquely suitable wherever repeated large deformation is required.",
+   history:[{y:"1959",e:"Buehler discovers shape memory effect at NOL"},{y:"1970s",e:"First commercial nitinol products: orthodontic archwires"},{y:"1990s",e:"Self-expanding cardiovascular stents transform cardiology"},{y:"2000s",e:"Nitinol actuators in aircraft morphing structures"},{y:"2020s",e:"Nitinol artificial muscles match human performance"}],
+   facts:["Nitinol stents self-expand from 1.5 mm to 3 mm when warmed by blood","The shape memory effect arises from a reversible martensitic phase transformation","Nitinol can recover strains of up to 8% — 50× more than steel"],
+   apps:["🫀 Cardiac Stents","🦷 Orthodontics","✈️ Morphing Wings","⚕️ Surgical Tools","🤖 Actuators","👓 Glasses"],
+   news:[{tag:"ROBOTICS",hed:"Nitinol Coil Actuator Exceeds Human Muscle Performance",deck:"20% strain at 0.5 GPa stress density achieved",body:"Coiled NiTi wire actuators achieve 20% contractile strain with stress output of 0.5 GPa — matching and exceeding biological muscle in both power and energy density.",date:"February 2025"}]},
+
+  {id:"graphene",name:"Graphene",cat:"Smart Materials",emoji:"⬡",
+   density:0.001,tensile:130000,yield:130000,hardness:2500,cost:100000,thermal:5000,elastic:1000,elong:25,melting:3700,
+   tagline:"The strongest material ever measured",
+   story1:"Graphene — a single atom-thick sheet of carbon atoms in a hexagonal lattice — was isolated in 2004 by Andre Geim and Konstantin Novoselov at the University of Manchester using nothing more exotic than adhesive tape and a graphite pencil. The method, known as mechanical exfoliation, earned them the Nobel Prize in Physics just six years later.",
+   story2:"The properties of graphene are extraordinary almost beyond belief. It is 200 times stronger than structural steel. It conducts electricity better than copper. It conducts heat better than diamond. It is transparent. And at just one atom thick — 0.33 nanometres — it represents the absolute lower limit of material thickness.",
+   story3:"Commercial reality has been harder to achieve than laboratory superlatives suggested. Scaling production while maintaining the single-layer structure that gives graphene its remarkable properties remains challenging. But graphene oxide membranes are entering water filtration; graphene-enhanced batteries are extending EV range; graphene-copper composites are wiring data centres.",
+   history:[{y:"1947",e:"Wallace theorises graphene band structure"},{y:"2004",e:"Geim & Novoselov isolate graphene with scotch tape"},{y:"2010",e:"Nobel Prize in Physics awarded"},{y:"2017",e:"First commercial graphene-enhanced products"},{y:"2024",e:"Graphene anode batteries enter volume production"}],
+   facts:["A graphene hammock the size of a cat could support the cat, weighing only as much as one of its whiskers","Graphene is 200× stronger than structural steel","A pencil stroke leaves graphene flakes — you have made graphene"],
+   apps:["🔋 Batteries","💻 Electronics","⚗️ Filtration","⚕️ Drug Delivery","🏎️ Composites","📱 Flexible Screens"],
+   news:[{tag:"BATTERY",hed:"Graphene Anode Charges to 80% in Six Minutes",deck:"StoreDot enters volume production with extreme fast-charge cell",body:"StoreDot's graphene-silicon anode lithium battery achieves 80% charge in six minutes at automotive scale, entering volume production with Samsung SDI.",date:"February 2025"},{tag:"WATER",hed:"Graphene Oxide Membrane Desalinates at 10× Lower Pressure",deck:"Single-layer GO membranes challenge reverse osmosis",body:"Researchers at MIT demonstrate graphene oxide membranes achieving 97% salt rejection at pressures 10× lower than conventional reverse osmosis, potentially transforming water security in arid regions.",date:"January 2025"}]},
+
+  {id:"bamboo",name:"Bamboo",cat:"Natural Materials",emoji:"🎋",
+   density:0.8,tensile:300,yield:150,hardness:250,cost:0.3,thermal:0.17,elastic:20,elong:1.5,melting:300,
+   tagline:"The fastest growing structural material on Earth",
+   story1:"Bamboo grows at up to 91 centimetres in a single day — a rate visible to the naked eye. It reaches structural maturity in 3 to 5 years versus 30 or more for timber. With a tensile strength rivalling mild steel on a weight-for-weight basis, it has been the primary construction material for 2.5 billion people across Asia for more than 7,000 years.",
+   story2:"Modern engineered bamboo products — glued laminated bamboo, strand-woven bamboo, cross-laminated bamboo panels — have elevated this ancient grass to a 21st-century structural material. Buildings up to 18 stories high have been completed using structural bamboo, and the material is under evaluation for use in bridges, earthquake-resistant structures, and mass-timber alternatives.",
+   story3:"Bamboo's environmental credentials are compelling. It sequesters carbon throughout its life, releasing 30% more oxygen than an equivalent area of trees and absorbing 35% more CO₂. It requires no pesticides, regenerates from its own root system after harvesting, and can be processed into textiles, paper, activated carbon, and biocomposites. It may be the defining structural material of climate-conscious construction.",
+   history:[{y:"~5000 BCE",e:"Bamboo used in Asian construction and tools"},{y:"1869",e:"First bamboo bicycle exhibited in London"},{y:"1990s",e:"Engineered bamboo panels developed in Asia"},{y:"2019",e:"Brock Commons 18-storey timber building, Vancouver"},{y:"2024",e:"Bamboo composite panels receive structural certification"}],
+   facts:["Giant bamboo achieves 370 MPa tensile strength — comparable to structural steel","Bamboo releases 30% more oxygen and absorbs 35% more CO₂ than equivalent tree area","The world record bamboo growth rate is 91 cm in 24 hours"],
+   apps:["🏗️ Construction","🪑 Furniture","👕 Textiles","🎶 Instruments","🚴 Bicycles","📄 Paper"],
+   news:[{tag:"CONSTRUCTION",hed:"Bamboo Skyscraper Wins UN Sustainability Award",deck:"16-storey zero-concrete tower completed in Colombia",body:"A 16-storey structural bamboo tower completed in Medellín uses zero concrete or structural steel. The building has passed seismic, wind, and fire performance tests.",date:"March 2025"}]},
+
+  {id:"zirconia",name:"Zirconia (ZrO₂)",cat:"Ceramics",emoji:"🦷",
+   density:6.05,tensile:900,yield:900,hardness:1200,cost:20,thermal:2.5,elastic:200,elong:0,melting:2715,
+   tagline:"The toughest ceramic — and the most beautiful",
+   story1:"Zirconia's remarkable toughening mechanism — a martensitic phase transformation from tetragonal to monoclinic crystal structure triggered by the stress field at a crack tip — gives it fracture toughness values that no other ceramic approaches. When a crack tries to propagate through yttria-stabilised zirconia (YSZ), the transformation expands the material ahead of the crack, squeezing it shut.",
+   story2:"Dental zirconia has transformed restorative dentistry. Crowns, bridges, and implant abutments machined from pre-sintered zirconia blanks are white, translucent, and strong enough to survive a lifetime of chewing forces. Unlike porcelain-fused-to-metal alternatives, they contain no opaque metal core, allowing light to pass through them as it does through natural enamel.",
+   story3:"In jet engines, YSZ thermal barrier coatings applied to nickel superalloy turbine blades by electron beam physical vapour deposition allow turbine inlet temperatures 300°C above the melting point of the underlying metal — the coating insulates the blade from gases that would otherwise destroy it within minutes.",
+   history:[{y:"1789",e:"Klaproth discovers zirconium oxide"},{y:"1970s",e:"Transformation toughening mechanism discovered"},{y:"1990s",e:"YSZ thermal barrier coatings transform jet engines"},{y:"2000s",e:"Dental zirconia replaces PFM crowns worldwide"},{y:"2020s",e:"Fifth-generation translucent zirconia enters market"}],
+   facts:["YSZ coatings allow blades to operate 300°C above the metal's own melting point","Cubic zirconia (jewellery) is a different crystal structure from dental zirconia","Fifth-generation dental zirconia achieves 48% light translucency — matching natural enamel"],
+   apps:["🦷 Dental Crowns","✈️ Turbine Coatings","💍 Jewellery","⚕️ Hip Joints","⚗️ Oxygen Sensors","🔬 Fuel Cells"],
+   news:[{tag:"DENTAL",hed:"Ultra-Translucent Zirconia Matches Natural Enamel Exactly",deck:"5th generation ZrO₂ passes aesthetic blind test",body:"Fifth-generation zirconia dental crowns achieved 48% translucency in clinical testing — indistinguishable from natural enamel in blinded panel assessment.",date:"February 2025"}]},
+
+  {id:"kevlar",name:"Kevlar Aramid",cat:"Composites",emoji:"🛡️",
+   density:1.44,tensile:3600,yield:3000,hardness:600,cost:25,thermal:0.04,elastic:70,elong:3.6,melting:500,
+   tagline:"The fibre that stops bullets",
+   story1:"Stephanie Kwolek was attempting to develop a lightweight tyre cord material at DuPont in 1965 when she noticed that a solution she had prepared was unusually cloudy and viscous. Most chemists would have discarded it. Kwolek had it spun anyway. The result was para-aramid fibre — Kevlar — with tensile strength five times greater than steel on an equal weight basis.",
+   story2:"Kevlar works by a different mechanism from metal armour. Rather than being hard enough to deflect a bullet, it is tough enough to absorb its energy. The woven fabric deforms locally, spreading the impact over a large area and converting kinetic energy to heat through fibre deformation. The bullet is stopped not by resistance but by energy dissipation.",
+   story3:"Kwolek's discovery has been credited with saving tens of thousands of lives. Police officers around the world wear Kevlar vests. Soldiers wear Kevlar helmets that replaced steel ones in the 1980s. Racing drivers sit in Kevlar-reinforced monocoques. And beyond protection, Kevlar fibres reinforce aircraft structures, pressure vessels, and the tyres of every vehicle on the road.",
+   history:[{y:"1965",e:"Stephanie Kwolek discovers para-aramid at DuPont"},{y:"1971",e:"DuPont commercialises Kevlar"},{y:"1975",e:"First Kevlar body armour issued to police"},{y:"1983",e:"Kevlar helmets replace steel in US military"},{y:"2010s",e:"Ultra-PE challenges Kevlar in next-gen armour"}],
+   facts:["Kevlar is 5× stronger than steel on an equal-weight basis","Stephanie Kwolek's discovery is credited with saving tens of thousands of lives worldwide","Kevlar is used in tyres — every car tyre belt contains para-aramid fibres"],
+   apps:["🛡️ Body Armour","🪖 Helmets","✈️ Aerospace","🛞 Tyre Belts","🧤 Cut-Resistant Gloves","🚤 Marine"],
+   news:[{tag:"DEFENCE",hed:"Ultra-PE Armour Surpasses Kevlar at Lower Weight",deck:"UHMWPE composite achieves record V50 ballistic performance",body:"Ultra-high molecular weight polyethylene fibre composites achieve 15% better ballistic performance at 20% lower areal density than equivalent Kevlar systems in NATO testing.",date:"January 2025"}]},
+
+  {id:"alumina",name:"Alumina (Al₂O₃)",cat:"Ceramics",emoji:"💎",
+   density:3.96,tensile:300,yield:300,hardness:2000,cost:2,thermal:30,elastic:380,elong:0,melting:2072,
+   tagline:"The ceramic that outlasts steel",
+   story1:"Alumina — corundum in its mineral form — is the second hardest natural substance after diamond. Ruby and sapphire are single crystals of alumina tinted by trace elements: chromium for red, iron and titanium for blue. In synthetic form, polycrystalline alumina is the most widely produced advanced ceramic, used in quantities that dwarf all other technical ceramics combined.",
+   story2:"At 2000 Vickers hardness, alumina scratches almost every other material. At 3.96 g/cm³ and elastic modulus of 380 GPa, it is stiffer than steel at half the weight. In orthopaedics, alumina femoral heads in total hip replacements generate only nanometres of wear per year — a joint that can last 30 or more years without revision surgery.",
+   story3:"Alumina armour inserts worn in bulletproof vests stop rifle rounds not by being hard enough to deflect them, but by shattering the bullet's copper jacket and lead core into fragments that the Kevlar backing fabric can then catch. The ceramic gives its life to save the wearer's.",
+   history:[{y:"1887",e:"Bayer patents the alumina production process"},{y:"1900s",e:"Abrasive wheels and spark plugs first applications"},{y:"1960s",e:"Advanced alumina for cutting tools and armour"},{y:"1980s",e:"Alumina hip joint liners achieve < 0.001 mm/year wear"},{y:"2020s",e:"Gradient alumina structures for next-gen armour"}],
+   facts:["Ruby and sapphire are single-crystal alumina coloured by trace elements","Alumina hip joint liners wear at less than 0.001 mm per year","Alumina armour stops rifle rounds by shattering the projectile itself"],
+   apps:["⚙️ Cutting Tools","⚕️ Hip Implants","💡 Spark Plugs","🛡️ Armour","⚡ Insulators","🔬 Substrates"],
+   news:[{tag:"ARMOUR",hed:"Gradient Alumina Stops 30mm Cannon Rounds",deck:"Functionally graded ceramic dissipates energy across density gradient",body:"Functionally graded alumina-steel ceramic armour panels demonstrated stopping 30mm APDS rounds in independent NATO trials, at 40% lower weight than rolled homogeneous armour equivalents.",date:"January 2025"}]},
+
+  {id:"silk",name:"Spider Silk",cat:"Natural Materials",emoji:"🕷️",
+   density:1.3,tensile:1000,yield:300,hardness:100,cost:10000,thermal:0.35,elastic:11,elong:30,melting:300,
+   tagline:"The strongest natural fibre known to science",
+   story1:"Spider dragline silk combines tensile strength approaching 1 GPa with extensibility of 30% before failure — a combination that makes it tougher, volume-for-volume, than any man-made material including Kevlar and carbon fibre. Toughness is the area under the stress-strain curve; silk has a uniquely broad, high curve. It stops bullets by stretching rather than by being rigid.",
+   story2:"The golden silk orb-weaver produces six distinct silk types from six specialised abdominal glands. Dragline silk forms the structural spokes of the web. Capture silk is coated in glue droplets. Egg case silk must resist ultraviolet radiation for months. Each is a different protein, tuned by millions of years of natural selection for its specific function.",
+   story3:"Scalable production has finally arrived. Bolt Threads, Amsilk, and others now produce recombinant spider silk proteins by fermentation in yeast, bacteria, or genetically modified organisms. The resulting fibres match the mechanical properties of natural silk. Surgical sutures, bulletproof textiles, and biodegradable packaging films from synthetic spider silk are entering the market.",
+   history:[{y:"Ancient",e:"Spider silk used as wound dressings in ancient Greece and China"},{y:"1709",e:"Réaumur attempts spider silk fabric — impractical without domestication"},{y:"2000s",e:"Nexia produces spider silk in goat milk"},{y:"2012",e:"Bolt Threads achieves commercial recombinant silk"},{y:"2024",e:"Spider silk sutures enter clinical use"}],
+   facts:["Spider silk is tougher than Kevlar and carbon fibre by volume","A pencil-thick rope of spider silk could theoretically stop a Boeing 747 in flight","The golden silk orb-weaver produces six distinct silk types from six glands"],
+   apps:["⚕️ Surgical Sutures","🛡️ Soft Body Armour","🕸️ Bio-inspired Materials","💊 Drug Delivery","🏋️ Sports Equipment"],
+   news:[{tag:"BIOTECH",hed:"Engineered Yeast Produces Dragline Silk at Industrial Scale",deck:"Amsilk fermentation matches natural silk properties",body:"Amsilk has achieved gram-scale fermentation of major ampullate spidroin protein, with resulting fibres matching the strength and toughness of natural spider silk in independent mechanical testing.",date:"January 2025"}]},
+
+  {id:"peek",name:"PEEK Polymer",cat:"Polymers",emoji:"⚕️",
+   density:1.32,tensile:100,yield:91,hardness:85,cost:100,thermal:0.25,elastic:3.6,elong:35,melting:343,
+   tagline:"The polymer that challenges metal",
+   story1:"Polyether ether ketone — PEEK — occupies territory that engineering thermoplastics were never supposed to reach. With a continuous service temperature of 250°C, chemical resistance to virtually every common solvent and acid, and mechanical properties that rival aluminium alloys, it entered aerospace and oil & gas applications as a genuine metal substitute.",
+   story2:"PEEK is radiolucent — X-rays pass through it without obstruction. This property, combined with its elastic modulus of 3.6 GPa (close to cortical bone's 18 GPa, far more compliant than titanium's 116 GPa), makes it the dominant material for spinal cage implants. Surgeons can image the fusion progress without the implant obscuring the X-ray. Bone grows around and through porous PEEK scaffolds.",
+   story3:"Carbon-fibre reinforced PEEK (CF-PEEK) pushes the performance envelope further: tensile strengths above 200 MPa, elastic modulus above 18 GPa, and fatigue resistance that outperforms titanium alloys in cyclically loaded implants. The polymer-composite implant revolution is only beginning.",
+   history:[{y:"1978",e:"ICI (Victrex) develops PEEK polymer"},{y:"1990s",e:"Aerospace qualifies PEEK for structural components"},{y:"2000s",e:"Spinal implants adopt PEEK for radiolucency"},{y:"2015",e:"CF-PEEK composites enter orthopaedic market"},{y:"2024",e:"Drug-eluting porous PEEK achieves 95% fusion rates"}],
+   facts:["PEEK implants do not obscure X-rays, enabling post-operative monitoring","PEEK can withstand continuous temperatures of 250°C — highest of any common thermoplastic","In some aerospace applications, PEEK replaces aluminium at half the weight"],
+   apps:["✈️ Aerospace","⚕️ Spinal Implants","🛢️ Oil & Gas","⚙️ Precision Gears","🔬 Semiconductor","💻 Electronics"],
+   news:[{tag:"MEDICAL",hed:"Drug-Eluting Porous PEEK Achieves 95% Spinal Fusion Rate",deck:"BMP-2 loaded scaffold transforms lumbar fusion surgery",body:"Porous PEEK cages loaded with bone morphogenetic protein-2 achieve 95% fusion rates at 12 months in randomised controlled trial, compared to 78% for standard autograft.",date:"February 2025"}]},
+
+  {id:"sic",name:"Silicon Carbide",cat:"Ceramics",emoji:"⚡",
+   density:3.21,tensile:400,yield:400,hardness:2800,cost:10,thermal:150,elastic:450,elong:0,melting:2730,
+   tagline:"The semiconductor ceramic of the power revolution",
+   story1:"Silicon carbide occupies a unique position in the materials landscape: a ceramic with semiconducting properties. Edward Acheson discovered it accidentally in 1891 while trying to synthesise artificial diamond; the luminescent crystals were named carborundum and found immediate use as an abrasive. The LED effect was first observed in SiC in 1907, 60 years before LEDs entered commercial production.",
+   story2:"SiC's wide bandgap of 3.26 eV (versus silicon's 1.1 eV) allows transistors to operate at higher voltages, higher frequencies, and higher temperatures than silicon. This makes it the critical material for the power electronics in electric vehicles, solar inverters, and fast-charging infrastructure. A SiC inverter in an EV runs at 99% efficiency versus 96% for silicon — a difference that extends range measurably.",
+   story3:"In mechanical applications, SiC's extreme hardness (2800 HV, second only to diamond and cubic boron nitride) makes it the abrasive of choice for grinding silicon wafers and polishing optical surfaces. SiC ceramic brake discs on performance cars provide unprecedented stopping power with zero fade at extreme temperatures. The JWST primary mirror segments were polished on SiC grinders.",
+   history:[{y:"1891",e:"Acheson accidentally synthesises SiC seeking artificial diamond"},{y:"1907",e:"First LED demonstrated in SiC crystal"},{y:"1990s",e:"SiC power devices commercialised"},{y:"2018",e:"Tesla Model 3 first mass-market SiC inverter"},{y:"2024",e:"SiC penetrates 40% of EV power electronics market"}],
+   facts:["Natural SiC (moissanite) is rarer than diamond on Earth but abundant in meteorites","SiC power transistors achieve 99% inverter efficiency vs 96% for silicon","The James Webb Space Telescope mirrors were polished using SiC abrasives"],
+   apps:["⚡ Power Electronics","🚗 EV Inverters","✈️ Aerospace","🔭 Telescope Mirrors","🛞 Brake Discs","⚙️ Abrasives"],
+   news:[{tag:"EV",hed:"Full SiC Powertrain Extends EV Range 10% vs Silicon",deck:"Tesla and BYD complete SiC transition drives Wolfspeed expansion",body:"Full silicon carbide inverter adoption in BYD Han EV demonstrates 10% range extension versus silicon IGBT equivalents in head-to-head testing under identical conditions.",date:"March 2025"}]},
+
+  /* ── METALS (continued) ── */
+  {id:"nickel",name:"Nickel",cat:"Metals",emoji:"🔘",density:8.91,tensile:460,yield:148,hardness:638,cost:14,thermal:91,elastic:200,elong:40,melting:1455,tagline:"The alloying champion of high-temperature engineering",story1:"Nickel has been humanity's secret alloying ingredient for millennia — Chinese craftsmen used nickel-bearing white copper centuries before Western chemists isolated the element in 1751. Today nickel's greatest role is as the base of superalloys that operate in jet engine hot sections where temperatures exceed the melting point of most metals.",story2:"The electroplating industry relies on nickel's hardness and corrosion resistance to protect everything from bathroom taps to industrial moulds. Nickel-metal hydride batteries powered every hybrid car before lithium-ion arrived, and nickel-rich NMC cathodes now hold the most energy in premium EV packs. The global energy transition is a nickel story.",story3:"Class 1 nickel (>99.8% pure) trades on the LME and its price swings send shockwaves through battery manufacturers worldwide. Indonesia's laterite nickel boom is reshaping geopolitics as automotive companies scramble for supply chain security in the EV age.",history:[{y:"1751",e:"Cronstedt isolates nickel from kupfernickel ore"},{y:"1880s",e:"Nickel steel alloys enter armour plate production"},{y:"1940s",e:"Nickel superalloys developed for jet engines"},{y:"1990s",e:"NiMH batteries power Toyota Prius"},{y:"2024",e:"High-nickel NMC cathodes dominate premium EVs"}],facts:["The 5-cent US nickel coin is only 25% nickel — the rest is copper","Nickel superalloy blades spin at 20,000 RPM above their own melting point","Indonesia holds 22% of global nickel reserves"],apps:["⚙️ Superalloys","🔋 EV Batteries","🚿 Electroplating","🧲 Magnets","⚗️ Chemical Reactors","🪙 Coinage"],news:[{tag:"BATTERY",hed:"High-Nickel NMC 9.5.5 Cathode Extends EV Range 15%",deck:"POSCO and CATL qualify next-gen cathode",body:"NMC 955 cathodes with 95% nickel content achieve 230 Wh/kg cell energy density, extending range of premium EVs to over 800 km on a single charge.",date:"March 2025"}]},
+
+  {id:"tungsten",name:"Tungsten",cat:"Metals",emoji:"💡",density:19.3,tensile:1510,yield:750,hardness:3430,cost:35,thermal:173,elastic:411,elong:2,melting:3422,tagline:"The heaviest, hardest, highest-melting metal nature made",story1:"Tungsten holds the highest melting point of all elements at 3422°C and the highest tensile strength of any pure metal. Its name derives from Swedish meaning heavy stone, and at 19.3 g/cm³ it is nearly as dense as gold. Named wolfram by German miners who found it interfered with tin smelting — hence the chemical symbol W.",story2:"The incandescent light bulb's longevity rested on tungsten's ability to glow white-hot without melting. Today its most critical application is tungsten carbide cemented with cobalt — WC-Co — the material that cuts, drills, and mills every metal object in the industrial world.",story3:"Tungsten's extreme density makes it the ballistic material of choice for kinetic energy penetrators. It is also the electrode material in TIG welding arcs and the divertor armour in ITER's fusion reactor, where it must withstand plasma-facing heat fluxes of 20 MW/m².",history:[{y:"1781",e:"Scheele identifies tungstic acid in scheelite mineral"},{y:"1783",e:"Elhuyar brothers isolate metallic tungsten"},{y:"1904",e:"Tungsten filaments replace carbon in incandescent lamps"},{y:"1920s",e:"WC-Co cemented carbides transform machining"},{y:"2025",e:"ITER tungsten divertor tested at 20 MW/m²"}],facts:["Tungsten has the highest melting point of all elements at 3422°C","A tungsten rod the size of your thumb weighs more than 1.5 kg","Tungsten carbide is used in every CNC machine that makes every metal part you own"],apps:["💡 Lighting","✂️ Cutting Tools","☢️ Radiation Shielding","🎯 Armour-Piercing","⚗️ Electrodes","🔬 X-Ray Tubes"],news:[{tag:"FUSION",hed:"Tungsten Divertor Survives 10 Million ITER Plasma Pulses",deck:"Material qualification milestone clears path for first plasma",body:"ITER tungsten divertor components have passed accelerated life testing equivalent to 10 million full-power plasma pulses, clearing the critical materials qualification milestone.",date:"January 2025"}]},
+
+  {id:"magnesium",name:"Magnesium AZ91",cat:"Metals",emoji:"🪶",density:1.81,tensile:240,yield:160,hardness:70,cost:3.5,thermal:72,elastic:45,elong:3,melting:595,tagline:"The lightest structural metal in engineering use",story1:"Magnesium at 1.81 g/cm³ is the lightest structural metal used in engineering — 35% lighter than aluminium and 78% lighter than steel. Its hexagonal close-packed crystal structure limits room-temperature formability, but die-cast magnesium produces complex thin-walled parts with excellent surface finish.",story2:"The automotive industry discovered magnesium in the 1930s — Volkswagen used magnesium crankcases in the Beetle for decades. Modern applications include laptop chassis, camera bodies, and steering wheels. New bioresorbable magnesium alloys are revolutionising orthopaedic surgery.",story3:"Magnesium's Achilles heel is corrosion — unprotected, it reacts with moisture and salt aggressively. Modern micro-arc oxidation coatings have transformed its corrosion performance, enabling aerospace, defence, and medical applications at unprecedented scale.",history:[{y:"1808",e:"Humphry Davy isolates magnesium metal"},{y:"1930s",e:"VW Beetle uses magnesium crankcase"},{y:"1990s",e:"Thixomoulded magnesium enters auto dashboards"},{y:"2000s",e:"Laptops adopt die-cast magnesium chassis"},{y:"2020s",e:"Bioresorbable Mg screws enter clinical use"}],facts:["Magnesium burns with an intense white flame — used in military flares","The human body contains about 25 g of magnesium — essential for 300+ enzymatic reactions","Magnesium is 35% lighter than aluminium"],apps:["💻 Laptop Chassis","🚗 Auto Dashboards","✈️ Aircraft","📷 Camera Bodies","⚕️ Bioresorbable Implants"],news:[{tag:"BIOMEDICAL",hed:"Bioresorbable Magnesium Screws Dissolve After Bone Heals",deck:"Mg-Zn-Ca alloy eliminates second surgery",body:"Clinical trials confirm Mg-Zn-Ca alloy bone screws degrade safely over 18 months, matching bone healing timeline and eliminating removal surgery.",date:"January 2025"}]},
+
+  {id:"stainless316",name:"Stainless Steel 316L",cat:"Metals",emoji:"🍴",density:8.0,tensile:580,yield:290,hardness:190,cost:2.5,thermal:16,elastic:193,elong:40,melting:1370,tagline:"The metal that refuses to corrode",story1:"Stainless steel's magic lies in a chromium oxide film just a few nanometres thick that forms spontaneously on the surface in air and heals itself when scratched. Grade 316L adds molybdenum to resist chloride attack — the pitting corrosion that destroys ordinary stainless in seawater and body fluids.",story2:"Surgical grade 316L stainless is the most widely used metallic implant material in the world by volume — bone screws, fracture plates, and intramedullary nails by the millions. Its combination of adequate strength, acceptable biocompatibility, and very low cost makes it the default choice for temporary orthopaedic fixation worldwide.",story3:"In the food and pharmaceutical industries, 316L's smooth, cleanable surface and resistance to acids and bleaches make it the mandatory material of construction. Every dairy plant, brewery, pharmaceutical bioreactor, and catering kitchen is largely built from 316L stainless steel tube and sheet.",history:[{y:"1913",e:"Brearley discovers rust-resistant steel in Sheffield"},{y:"1920s",e:"Stainless cutlery revolutionises dining"},{y:"1950s",e:"316 grade with molybdenum developed for marine use"},{y:"1960s",e:"316L low-carbon grade adopted for surgical implants"},{y:"1990s",e:"316L becomes global standard in food processing"}],facts:["316L's self-healing oxide film is only 2–3 nm thick but provides near-complete protection","316L is found in every hospital, dairy plant, and nuclear power station simultaneously","The L in 316L means carbon below 0.03% — preventing weld-zone carbide precipitation"],apps:["⚕️ Surgical Implants","🍴 Cutlery","🌊 Marine","🏭 Chemical Plants","🧪 Pharmaceutical","🏗️ Architecture"],news:[{tag:"MEDICAL",hed:"Biodegradable Iron Alloy Challenges 316L for Implants",deck:"Fe-Mn-Si alloys dissolve at controlled rate in bone",body:"Iron-based biodegradable alloys with controlled degradation rates are entering clinical trials as alternatives to permanent 316L fixation hardware.",date:"February 2025"}]},
+
+  {id:"gold",name:"Gold",cat:"Metals",emoji:"🏆",density:19.32,tensile:120,yield:100,hardness:25,cost:65000,thermal:318,elastic:79,elong:30,melting:1064,tagline:"The eternal metal — incorruptible and indispensable",story1:"Gold's refusal to oxidise, tarnish, or corrode under any ordinary chemical attack made it humanity's universal store of value for six millennia. Every atom of gold on Earth arrived via neutron-star collisions — r-process nucleosynthesis — and was later delivered by asteroid bombardment.",story2:"Beyond its monetary role, gold's conductivity, biocompatibility, and malleability make it irreplaceable in electronics. Every smartphone contains about 0.03 grams of gold in circuit contacts. Gold-coated satellite visors reflect infrared radiation. Gold nanoparticles are the most promising vectors for targeted cancer therapy.",story3:"One gram of gold can be beaten into a sheet covering one square metre — so thin that light passes through it with a greenish tint. Gold is so ductile that a single troy ounce can be drawn into 80 km of wire finer than human hair.",history:[{y:"~4000 BCE",e:"Earliest gold artefacts found in Thracian burial sites"},{y:"600 BCE",e:"Lydians mint world's first gold coins"},{y:"1848",e:"California Gold Rush transforms American settlement"},{y:"1971",e:"Nixon ends gold standard"},{y:"2024",e:"Gold hits record $2,400/oz"}],facts:["All gold ever mined would fill only 3.5 Olympic swimming pools","NASA coats satellite visors with gold to reflect infrared solar radiation","Gold nanoparticles appear red or purple — colour depends on particle size"],apps:["💍 Jewellery","💻 Electronics","🦷 Dentistry","🛰️ Aerospace","💊 Cancer Therapy","💰 Investment"],news:[{tag:"NANOTECH",hed:"Gold Nanoparticles Destroy Tumour Cells with Laser Precision",deck:"Photothermal therapy enters Phase III clinical trials",body:"Gold nanorods accumulate preferentially in tumour tissue and activate with near-infrared laser to heat tumour cells selectively, leaving surrounding tissue unharmed.",date:"March 2025"}]},
+
+  {id:"lead",name:"Lead",cat:"Metals",emoji:"🔋",density:11.34,tensile:18,yield:11,hardness:5,cost:2.0,thermal:35,elastic:16,elong:50,melting:327,tagline:"The ancient metal of utility and toxicity",story1:"Lead's story is one of extraordinary utility shadowed by devastating toxicity. Romans used it for water pipes, wine vessels, and even as a food sweetener. The Empire's decline has been partially attributed to chronic lead poisoning from these ubiquitous uses.",story2:"The lead-acid battery, invented by Planté in 1859, remains the world's most widely used rechargeable battery by mass. Every petrol and diesel vehicle relies on lead-acid for starting. In an era of lithium-ion dominance, lead-acid maintains a 40% share of total rechargeable battery market value.",story3:"Lead's density of 11.3 g/cm³ makes it 40 times more effective than aluminium for radiation shielding per unit thickness. Medical X-ray technicians wear lead aprons; nuclear reactor halls are lined with lead bricks.",history:[{y:"~7000 BCE",e:"Earliest lead smelting in Anatolia"},{y:"200 BCE",e:"Romans use lead extensively for plumbing"},{y:"1859",e:"Planté invents lead-acid battery"},{y:"1970s–90s",e:"Leaded petrol and lead paint phased out"},{y:"2020s",e:"Lead-acid remains dominant in backup power"}],facts:["The average car battery contains 20 kg of lead — 99% is recycled","Lead is 40× more effective than aluminium for radiation shielding","Lead's Latin name plumbum gives us the word plumbing and symbol Pb"],apps:["🔋 Lead-Acid Batteries","☢️ Radiation Shielding","🎯 Ammunition","🔧 Soldering","🔊 Sound Damping"],news:[{tag:"ENVIRONMENT",hed:"WHO Calls for Global Lead Paint Elimination by 2026",deck:"77 countries still permit residential lead paint",body:"The WHO Global Alliance reports 77 countries still permit lead in residential paint, exposing millions of children to neurotoxic risk.",date:"January 2025"}]},
+
+  {id:"inconel",name:"Inconel 718 Superalloy",cat:"Metals",emoji:"🛩️",density:8.19,tensile:1375,yield:1100,hardness:400,cost:80,thermal:11,elastic:200,elong:12,melting:1336,tagline:"The alloy that conquers jet engine infernos",story1:"Inconel 718, a nickel-chromium superalloy strengthened by gamma-prime precipitation, is the most widely used superalloy in aerospace. Its combination of high temperature strength, oxidation resistance, and excellent weldability makes it the default choice for turbine discs, rings, and casings.",story2:"The aerospace industry's perpetual quest for higher turbine inlet temperatures drives continuous superalloy development. Single-crystal casting eliminates grain boundaries; thermal barrier coatings of yttria-stabilised zirconia insulate blades from gases hotter than the metal's melting point.",story3:"SpaceX uses Inconel in Merlin engine turbopumps and combustion chambers. NASA's Space Shuttle main engine turbopumps ran on Inconel at temperatures and pressures that destroyed prototype hardware dozens of times during development.",history:[{y:"1940s",e:"First nickel superalloys for WWII jet engines"},{y:"1959",e:"Inconel 718 developed at INCO"},{y:"1965",e:"718 qualifies for GE turbofan discs"},{y:"1986",e:"Single crystal blades mature"},{y:"2023",e:"SpaceX Starship uses Inconel for hot section"}],facts:["Single-crystal Inconel blades operate above their own melting point via internal cooling","Inconel 718 accounts for over 35% of all superalloy production","A single turbine blade costs more than a luxury car"],apps:["✈️ Turbine Discs","🚀 Rocket Engines","⚡ Power Generation","🛢️ Oil & Gas","🏭 Chemical Plants","🔬 Cryogenics"],news:[{tag:"ADDITIVE",hed:"Laser Powder Bed Fusion Produces Defect-Free Inconel 718",deck:"AM parts qualify for GE9X engine application",body:"Additive manufacturing of Inconel 718 turbine fuel nozzles passes FAA qualification for GE9X wide-body engine, enabling 25% weight reduction versus cast equivalents.",date:"February 2025"}]},
+
+  {id:"cast-iron",name:"Grey Cast Iron",cat:"Metals",emoji:"🍳",density:7.15,tensile:200,yield:150,hardness:230,cost:0.4,thermal:55,elastic:100,elong:0.5,melting:1200,tagline:"The iron that built the Industrial Revolution",story1:"Grey cast iron, with its graphite flakes distributed through a pearlitic iron matrix, is the material of the Industrial Revolution. It is cheap, castable into complex shapes, self-lubricating due to graphite, and has excellent vibration damping — making it the default material for engine blocks, machine tool beds, and pipe fittings for two centuries.",story2:"The Ironbridge in Shropshire, completed in 1781, was the world's first cast iron bridge and symbol of the new industrial age. Cast iron cookware distributes heat so evenly that it makes better food than modern non-stick alternatives, while lasting indefinitely.",story3:"Cast iron's brittleness limits use in applications requiring tensile strength. Ductile (nodular) cast iron, where magnesium treatment converts graphite from flakes to spheroids, achieves elongations of 10–20% while retaining castability advantages.",history:[{y:"~500 BCE",e:"Chinese develop cast iron production"},{y:"1709",e:"Darby smelts iron with coke at Coalbrookdale"},{y:"1781",e:"Iron Bridge completed — world's first cast iron bridge"},{y:"1948",e:"Ductile cast iron developed by Millis"},{y:"2000s",e:"Compacted graphite iron adopted for diesel engine blocks"}],facts:["Cast iron cookware can last over a century — passed down through generations","The Ironbridge in Shropshire still stands after 244 years","Grey cast iron's graphite flakes make it self-lubricating"],apps:["🍳 Cookware","🚗 Engine Blocks","🔧 Machine Tools","🚿 Pipes","🌉 Historic Bridges","⚙️ Brake Discs"],news:[{tag:"MANUFACTURING",hed:"Compacted Graphite Iron Enables Lighter Diesel Engines",deck:"CGI blocks achieve 20% weight reduction vs grey iron",body:"Ford and Volvo heavy-duty diesels adopt compacted graphite iron blocks, reducing engine weight 20% versus grey iron.",date:"January 2025"}]},
+
+  {id:"zinc",name:"Zinc",cat:"Metals",emoji:"🛡️",density:7.13,tensile:200,yield:100,hardness:30,cost:2.8,thermal:116,elastic:108,elong:50,melting:420,tagline:"Steel's invisible guardian against corrosion",story1:"Zinc is the quiet protector — 60% of all zinc produced goes into galvanising, the coating that sacrificially protects steel from corrosion. A zinc-coated steel telegraph pole outlasts an uncoated one by decades; galvanised steel roof sheets in tropical climates last 30 years without maintenance.",story2:"Beyond galvanising, zinc alloys are die-cast into a vast range of small components — door handles, carburettors, toy cars, zips — because they cast with exceptional dimensional accuracy at low temperatures, are recyclable, and cost far less than aluminium die castings.",story3:"Zinc is biologically essential — the second most abundant trace element in the human body after iron, present in over 300 enzymes. Zinc deficiency affects over 2 billion people globally, causing stunted growth and immune suppression.",history:[{y:"~1000 BCE",e:"Indians produce metallic zinc by distillation"},{y:"1746",e:"Marggraf describes zinc properties"},{y:"1800s",e:"Hot-dip galvanising industrialised"},{y:"1930s",e:"Zamak die-casting alloys developed"},{y:"2020s",e:"Zinc-air batteries proposed for grid storage"}],facts:["60% of all zinc produced is used to galvanise steel","The human body contains 2–4 g of zinc — required by 300+ enzymes","Zinc is the 4th most widely used metal globally"],apps:["🛡️ Galvanising","🔧 Die Castings","🔋 Batteries","💊 Supplements","🎨 Paints","⚗️ Brass Alloys"],news:[{tag:"ENERGY",hed:"Zinc-Air Battery Achieves Grid-Scale Energy Storage",deck:"100-hour discharge system enters pilot",body:"Zinc-air flow batteries with 100-hour discharge capability are being tested for multi-day grid storage, offering lower cost than lithium-ion for long-duration storage.",date:"March 2025"}]},
+
+  {id:"silver",name:"Silver",cat:"Metals",emoji:"🪙",density:10.49,tensile:170,yield:55,hardness:25,cost:800,thermal:429,elastic:83,elong:40,melting:962,tagline:"The finest electrical and thermal conductor known",story1:"Silver holds the highest electrical conductivity, highest thermal conductivity, and highest optical reflectivity of any metal. These superlatives, combined with its antibacterial properties and malleability, have made it the most versatile precious metal in both technology and culture.",story2:"Silver's bactericidal properties stem from silver ions that disrupt bacterial cell membranes and enzyme function. Silver-coated wound dressings treat chronic infections where antibiotics fail. Ancient civilisations stored water in silver vessels for the same reason.",story3:"In electronics, silver paste is the essential interconnect material in photovoltaic cells — approximately 100 mg per solar cell. With solar capacity expanding at gigawatt pace, the photovoltaic industry is now the largest consumer of silver globally.",history:[{y:"~3000 BCE",e:"Silver mining established in Laurion, Greece"},{y:"1840s",e:"Silver photography transforms visual culture"},{y:"1940s",e:"Silver nitrate used in wound dressings"},{y:"1990s",e:"Silver nanoparticle antibacterials commercialised"},{y:"2024",e:"Solar overtakes jewellery as largest silver consumer"}],facts:["Silver has the highest electrical conductivity of any element — better than copper","Ancient Romans used silver vessels to keep water and wine fresh","Every photovoltaic solar cell contains about 100 mg of silver paste"],apps:["⚡ Electronics","☀️ Solar Cells","🩺 Antibacterial Dressings","📸 Photography","💍 Jewellery","🪞 Mirrors"],news:[{tag:"SOLAR",hed:"Solar Industry Now World's Largest Silver Consumer",deck:"PV silver demand overtakes jewellery for first time",body:"The Silver Institute reports photovoltaic manufacturing consumed 190 million ounces of silver in 2024, overtaking jewellery for the first time.",date:"March 2025"}]},
+
+  {id:"cobalt",name:"Cobalt",cat:"Metals",emoji:"🔵",density:8.90,tensile:760,yield:450,hardness:1043,cost:33,thermal:100,elastic:209,elong:30,melting:1495,tagline:"The critical metal at the heart of every EV battery",story1:"Cobalt is simultaneously one of the most strategically critical and ethically controversial metals of the 21st century. Over 70% comes from the DRC, where artisanal mining operations include child labour. Every lithium-cobalt oxide battery in a smartphone or EV contains this complicated heritage.",story2:"Cobalt's unique electronic structure stabilises NMC and NCA cathode crystal structures through charge-discharge cycles. The battery industry's drive to reduce cobalt content — from NMC 111 to NMC 811 — has made cobalt-free LFP the fastest-growing chemistry for standard-range EVs.",story3:"Beyond batteries, cobalt-based superalloys resist wear and oxidation at higher temperatures than nickel alloys, making them the material of choice for hot section nozzle guide vanes. SmCo permanent magnets retain magnetism at temperatures up to 350°C.",history:[{y:"1735",e:"Brandt isolates cobalt as a distinct element"},{y:"1940s",e:"Cobalt superalloys developed for jet engines"},{y:"1991",e:"Sony commercialises lithium-cobalt-oxide battery"},{y:"2018",e:"DRC cobalt crisis triggers supply diversification"},{y:"2024",e:"NMC 811 becomes mainstream EV cathode"}],facts:["Cobalt gives glass and porcelain their brilliant blue colour","SmCo permanent magnets retain magnetism at 350°C","60% of world cobalt supply comes from a single country — the DRC"],apps:["🔋 EV Batteries","✈️ Superalloys","🦷 Dental Prosthetics","🧲 Permanent Magnets","🎨 Blue Pigments","⚕️ Implants"],news:[{tag:"SUPPLY CHAIN",hed:"Battery Makers Race to Eliminate Cobalt from NMC",deck:"LNMO and DRX cathodes promise cobalt-free high voltage",body:"Samsung SDI and Panasonic are qualifying LNMO cathodes for EVs, promising to eliminate cobalt while maintaining 4.7 V operating voltage.",date:"February 2025"}]},
+
+  /* ── POLYMERS (continued) ── */
+  {id:"nylon",name:"Nylon PA66",cat:"Polymers",emoji:"🧵",density:1.14,tensile:80,yield:60,hardness:85,cost:3,thermal:0.25,elastic:2.8,elong:40,melting:265,tagline:"The miracle fibre that launched synthetic materials",story1:"Nylon was the world's first completely synthetic fibre — proof that chemistry could create materials nature never made. Invented at DuPont by Wallace Carothers in 1935, it was introduced as a silk substitute for women's stockings. On the first day of sales in New York in 1939, four million pairs sold.",story2:"Beyond textiles, nylon's combination of high strength, low friction, good chemical resistance, and easy processing has made it the most widely used engineering thermoplastic. Nylon gears and bearings run dry without oil lubrication in food-processing and medical equipment.",story3:"PA66 differs from PA6 in its symmetrical chain structure, giving higher melting point and better stiffness at temperature. Bio-based nylon 11, derived from castor oil, is the first commercial polymer to achieve significant bio-derived content with full property equivalence.",history:[{y:"1935",e:"Carothers synthesises nylon 6,6 at DuPont"},{y:"1938",e:"First nylon toothbrushes"},{y:"1939",e:"Nylon stockings launched — 4 million pairs sold day one"},{y:"1941",e:"WWII diverts all nylon to parachutes and rope"},{y:"2020s",e:"Bio-based nylon 11 from castor oil goes mainstream"}],facts:["The name nylon has no etymology — DuPont invented the word","Nylon replaced natural silk in WWII parachutes","Nylon absorbs up to 2.5% of its weight in water causing dimensional change"],apps:["🧵 Textiles","⚙️ Gears & Bearings","🪂 Parachutes","🎣 Fishing Line","🔧 Cable Ties","🚗 Auto Parts"],news:[{tag:"BIORENEWABLE",hed:"Bio-Based Nylon 11 from Castor Oil Scales to Auto Market",deck:"Arkema Rilsan achieves 50% lower carbon footprint",body:"Arkema's Rilsan nylon 11 achieves full automotive qualification, delivering 50% lower lifecycle carbon footprint versus petroleum nylon with identical properties.",date:"February 2025"}]},
+
+  {id:"polycarbonate",name:"Polycarbonate",cat:"Polymers",emoji:"🔭",density:1.2,tensile:65,yield:60,hardness:70,cost:4,thermal:0.20,elastic:2.4,elong:110,melting:260,tagline:"Transparent armour — 250 times stronger than glass",story1:"Polycarbonate combines the optical clarity of glass with impact resistance 250 times greater. Drop a glass window — it shatters. Drop a polycarbonate window — it bounces. This combination, discovered simultaneously at Bayer and GE in 1953, created bulletproof glazing, fighter pilot visors, and riot shields.",story2:"Compact discs, DVDs, and Blu-ray discs are polycarbonate — the music, film, and software of three decades encoded in microscopic pits pressed into plastic. Every LED traffic light lens is polycarbonate — glass lenses cracked from thermal cycling.",story3:"The BPA controversy that surrounded polycarbonate baby bottles drove rapid development of BPA-free alternatives. New bio-based polycarbonates from isosorbide deliver equivalent properties without BPA and with lower carbon footprint.",history:[{y:"1953",e:"Bayer and GE independently discover polycarbonate"},{y:"1960s",e:"Commercial production begins"},{y:"1982",e:"Philips and Sony launch CD pressed in polycarbonate"},{y:"1990s",e:"Bulletproof PC glazing standard in banks"},{y:"2010s",e:"BPA concern drives bio-based alternatives"}],facts:["Polycarbonate is 250× stronger than glass at half the weight","Every CD ever made is pressed polycarbonate","Fighter pilot visors survive 400+ km/h bird strikes"],apps:["🔭 Lenses","🛡️ Bulletproof Glass","💿 CDs/DVDs","⛑️ Helmets","🏥 Medical Devices","☀️ Greenhouse Panels"],news:[{tag:"BIO-BASED",hed:"Isosorbide Polycarbonate Eliminates BPA from Optical Films",deck:"Roquette and Covestro qualify bio-based PC",body:"Bio-based polycarbonate using isosorbide monomer achieves optical film qualification for display applications, providing BPA-free alternative with equivalent optical properties.",date:"January 2025"}]},
+
+  {id:"polyethylene",name:"HDPE and UHMWPE",cat:"Polymers",emoji:"🧴",density:0.97,tensile:30,yield:26,hardness:60,cost:1.2,thermal:0.45,elastic:1.1,elong:500,melting:130,tagline:"The world's most used plastic and toughest fibre",story1:"Polyethylene is the most produced polymer — over 100 million tonnes annually. High-density polyethylene forms milk jugs, water pipes, and children's toys. Ultra-high molecular weight polyethylene fibres (Dyneema, Spectra) are the world's strongest fibres by specific strength — stronger than Kevlar, tougher than steel.",story2:"UHMWPE joint replacement liners have revolutionised arthroplasty. Highly crosslinked UHMWPE acetabular cups wear at less than 0.05 mm per year — a hip that can last 25+ years. This single material innovation has extended working life of hip replacements for an entire generation.",story3:"Dyneema UHMWPE fibres have specific strength 15× that of steel. Dyneema gloves handle razor blades without cuts. Dyneema ropes moor supertankers. Dyneema soft body armour stops pistol rounds at 25% the weight of equivalent Kevlar.",history:[{y:"1933",e:"PE accidentally discovered at ICI"},{y:"1953",e:"Ziegler develops catalyst for HDPE"},{y:"1963",e:"Ziegler and Natta win Nobel Prize"},{y:"1979",e:"DSM develops gel-spinning of UHMWPE (Dyneema)"},{y:"2000s",e:"Crosslinked UHMWPE standard in hip replacements"}],facts:["UHMWPE fibres are 15× stronger than steel by weight","A 4 mm Dyneema rope can lift a small car","Recycling symbol number 2 on containers indicates HDPE"],apps:["🧴 Bottles & Pipes","🛡️ Soft Armour","⚕️ Hip Liners","⛵ Marine Ropes","🧤 Cut Gloves","🌍 Geomembranes"],news:[{tag:"DEFENCE",hed:"Dyneema HB212 Stops 7.62mm AP Round at Record Low Weight",deck:"UHMWPE passes NIJ Level IV at 4.2 kg/m²",body:"DSM Dyneema HB212 achieves NIJ Level IV ballistic protection at 4.2 kg/m² areal density — the lightest hard armour panel to pass this standard.",date:"February 2025"}]},
+
+  {id:"epoxy",name:"Epoxy Resin",cat:"Polymers",emoji:"🔩",density:1.2,tensile:80,yield:60,hardness:90,cost:5,thermal:0.2,elastic:3.5,elong:5,melting:180,tagline:"The adhesive matrix that holds composites together",story1:"Epoxy resins are the invisible glue that makes the composite materials revolution possible. As the matrix in CFRP and GFRP, epoxy transfers load between fibres, protects them, and defines the composite's out-of-plane properties. The wing of an Airbus A350 or a wind turbine blade is fundamentally a shaped piece of epoxy reinforced with carbon fibre.",story2:"Epoxy's chemistry is elegant: two components react without releasing volatile byproducts, allowing void-free curing. The resulting thermoset is dimensionally stable, chemically resistant, and strongly adhesive to most surfaces. Two-part epoxy adhesives bond metal, ceramic, glass, and composites in applications from marine repair to space structures.",story3:"The electronics industry is the largest consumer of epoxy — printed circuit boards are glass-fibre-reinforced epoxy laminates (FR4). Epoxy encapsulants protect semiconductor packages. Without epoxy, modern electronics would not exist.",history:[{y:"1909",e:"Einhorn produces first epoxide compounds"},{y:"1936",e:"Castan patents bisphenol-A epoxy"},{y:"1940s",e:"Araldite commercialises first epoxy adhesives"},{y:"1960s",e:"Carbon fibre composites adopt epoxy matrix"},{y:"2000s",e:"Toughened epoxies qualify for primary aircraft structures"}],facts:["Araldite two-part epoxy has been sold since 1946","FR4 circuit board in every electronic device is glass/epoxy laminate","Epoxy grout remains harder than ceramic tile after 50 years"],apps:["⚙️ Composite Matrix","🔧 Structural Adhesives","💻 Circuit Boards","🏗️ Civil Engineering","🚤 Marine Repair","⚡ Electrical Encapsulation"],news:[{tag:"SUSTAINABILITY",hed:"Bio-Based Epoxy from Lignin Matches Petroleum Resin Performance",deck:"Lignin-epoxy qualifies for wind turbine blades",body:"A bio-based epoxy system from kraft lignin achieves mechanical properties matching petroleum bisphenol-A epoxy, opening a sustainable path for wind turbine blade manufacture.",date:"March 2025"}]},
+
+  {id:"ptfe",name:"PTFE Teflon",cat:"Polymers",emoji:"🍳",density:2.2,tensile:25,yield:20,hardness:60,cost:15,thermal:0.25,elastic:0.5,elong:300,melting:327,tagline:"The slipperiest substance ever created",story1:"Roy Plunkett was 27 years old when he accidentally discovered PTFE at DuPont in 1938. A cylinder of tetrafluoroethylene gas had stopped flowing even though it was not empty. He cut it open and found a waxy white powder unlike anything chemistry had produced — perfectly smooth, thermally stable, and chemically inert.",story2:"PTFE's carbon-fluorine bond is among the strongest in organic chemistry, which is why nothing reacts with it and nothing sticks to it — including food. The non-stick frying pan democratised cookery. Gore-Tex — expanded PTFE — has 9 billion pores per square metre, allowing vapour through while blocking liquid water.",story3:"PTFE seals every pipe joint in chemical plants, insulates coaxial cables, lines aerospace fuel system valves, and forms bearings in bridge expansion joints. Its coefficient of friction (0.04) is the lowest of any known solid material.",history:[{y:"1938",e:"Roy Plunkett accidentally discovers PTFE"},{y:"1945",e:"DuPont trademarks Teflon"},{y:"1954",e:"First PTFE non-stick pan sold in France"},{y:"1969",e:"Gore-Tex expanded PTFE developed"},{y:"1970s",e:"PTFE vascular grafts enter cardiac surgery"}],facts:["PTFE is the most non-stick substance known","Gore-Tex has 9 billion micropores per square metre — each 20,000× smaller than a raindrop","PTFE coefficient of friction 0.04 is the lowest of any solid material"],apps:["🍳 Non-Stick Cookware","🔧 Industrial Seals","🧥 Gore-Tex Clothing","⚕️ Vascular Grafts","⚡ Cable Insulation","⚗️ Chemical Equipment"],news:[{tag:"HEALTH",hed:"EU Restricts PFAS in Food Contact Materials from 2025",deck:"Teflon alternatives surge as PTFE cookware faces regulation",body:"The EU restriction on PFAS in food contact materials from January 2025 is driving rapid adoption of ceramic and cast iron cookware alternatives.",date:"March 2025"}]},
+
+  {id:"abs",name:"ABS Plastic",cat:"Polymers",emoji:"🖨️",density:1.05,tensile:45,yield:40,hardness:100,cost:1.5,thermal:0.17,elastic:2.3,elong:25,melting:220,tagline:"The plastic that made 3D printing mainstream",story1:"Acrylonitrile butadiene styrene — ABS — is a three-component copolymer where each monomer contributes: acrylonitrile provides chemical resistance; butadiene provides toughness; styrene provides rigidity and gloss. The result is an extremely versatile engineering plastic that can be injection-moulded, extruded, or 3D printed.",story2:"The Lego brick is ABS, since 1963. No other plastic provides the same dimensional precision, stiffness, gloss, and 50-year brick compatibility. ABS Lego tolerances of ±0.002 mm are more precise than many machined metal parts.",story3:"FDM 3D printing made ABS one of the most discussed polymers of the 21st century. The entire desktop 3D printing revolution runs on ABS or PLA. ABS can be dissolved in acetone for post-printing surface smoothing.",history:[{y:"1948",e:"ABS polymer first synthesised"},{y:"1963",e:"Lego adopts ABS, replacing cellulose acetate"},{y:"1970s",e:"ABS dominates consumer electronics housings"},{y:"1990s",e:"FDM 3D printing patents expire"},{y:"2010s",e:"ABS filament fuels desktop 3D printing revolution"}],facts:["Every Lego brick since 1963 is ABS — dimensional tolerances ±0.002 mm","ABS dissolves in acetone — used to smooth 3D-printed parts","Motorcycle and bicycle helmets use ABS outer shells"],apps:["🖨️ 3D Printing","🧱 Lego Bricks","🚗 Car Interior","⛑️ Safety Helmets","💻 Electronics Housings","🎮 Toys"],news:[{tag:"RECYCLING",hed:"Chemical Recycling Converts ABS Back to Styrene Monomer",deck:"Plastic Energy plant processes mixed ABS waste",body:"Pyrolysis-based chemical recycling of mixed ABS waste achieves 85% monomer recovery rate, enabling closed-loop recycling of automotive interior plastics.",date:"February 2025"}]},
+
+  {id:"silicone",name:"Silicone Rubber",cat:"Polymers",emoji:"🫀",density:1.1,tensile:7,yield:3,hardness:40,cost:8,thermal:0.18,elastic:0.003,elong:300,melting:230,tagline:"The elastic wonder bridging organic and inorganic chemistry",story1:"Silicone rubber occupies a unique chemical space: a polymer with a silicon-oxygen backbone rather than carbon-carbon. This hybrid nature gives it thermal stability from -60°C to +200°C, complete UV resistance, and biocompatibility so extraordinary that it can be permanently implanted in the human body.",story2:"Medical-grade silicone is the material of choice for long-term implantable devices: pacemaker lead insulation, cochlear implant housings, artificial heart chambers, tracheal stents, and urological catheters. Its softness matches the compliance of biological tissue.",story3:"In everyday applications, silicone is the sealant around every bathtub and sink, the baking mat that releases cakes effortlessly, the O-ring sealing a spacecraft fuel line. Its range from 0° Shore A to 80° Shore A allows precise compliance engineering.",history:[{y:"1943",e:"Dow Corning commercialises first silicone products"},{y:"1961",e:"First silicone breast implants developed"},{y:"1970s",e:"Silicone adopted for pacemaker lead insulation"},{y:"1990s",e:"Liquid silicone rubber enables precision moulding"},{y:"2010s",e:"Wearable health devices adopt stretchable silicone"}],facts:["Silicone can flex over 1 million times without fatigue failure","Medical-grade silicone can be sterilised by autoclave, gamma radiation, or ethylene oxide","Silicone sealant cures by reacting with atmospheric moisture"],apps:["⚕️ Medical Implants","🍳 Bakeware","🔧 Sealants","🫀 Pacemaker Leads","👶 Baby Products","⌚ Watch Straps"],news:[{tag:"WEARABLE",hed:"Stretchable Silicone Patch Monitors ECG for 30 Days",deck:"Gold nanowire-embedded silicone achieves clinical-grade accuracy",body:"A stretchable silicone patch embedding gold nanowire electrodes achieves Holter-equivalent ECG monitoring accuracy over 30 continuous days of wear, validated in 500-patient clinical trial.",date:"January 2025"}]},
+
+  /* ── CERAMICS (continued) ── */
+  {id:"alumina",name:"Alumina Al₂O₃",cat:"Ceramics",emoji:"💎",density:3.96,tensile:300,yield:300,hardness:2000,cost:2,thermal:30,elastic:380,elong:0,melting:2072,tagline:"The ceramic that outlasts steel",story1:"Alumina — corundum in mineral form — is the second hardest natural substance after diamond. Ruby and sapphire are single crystals of alumina tinted by trace elements: chromium for red, iron and titanium for blue. In synthetic polycrystalline form, it is the most widely produced advanced ceramic.",story2:"At 2000 Vickers hardness, alumina scratches almost every other material. In orthopaedics, alumina femoral heads in total hip replacements generate only nanometres of wear per year — a joint lasting 30+ years. Alumina armour inserts stop rifle rounds by shattering the bullet's core.",story3:"Alumina spark plugs fire in every petrol engine. Alumina substrates carry microelectronic circuits. Alumina tubes contain thermocouple wires in industrial furnaces. The material's combination of hardness, insulation, and chemical inertness makes it ubiquitous across industry.",history:[{y:"1887",e:"Bayer patents the alumina production process"},{y:"1900s",e:"Abrasive wheels and spark plugs first applications"},{y:"1960s",e:"Advanced alumina for cutting tools and armour"},{y:"1980s",e:"Alumina hip joint liners achieve 0.001 mm/year wear"},{y:"2020s",e:"Gradient alumina structures for next-gen armour"}],facts:["Ruby and sapphire are single-crystal alumina coloured by trace elements","Alumina hip joint liners wear at less than 0.001 mm per year","Alumina armour stops rifle rounds by shattering the projectile"],apps:["⚙️ Cutting Tools","⚕️ Hip Implants","💡 Spark Plugs","🛡️ Armour","⚡ Insulators","🔬 Substrates"],news:[{tag:"ARMOUR",hed:"Gradient Alumina Stops 30mm Cannon Rounds",deck:"Functionally graded ceramic passes NATO trials",body:"Functionally graded alumina-steel panels stop 30mm APDS rounds at 40% lower weight than rolled homogeneous armour equivalents in independent NATO trials.",date:"January 2025"}]},
+
+  {id:"boron-nitride",name:"Hexagonal Boron Nitride",cat:"Ceramics",emoji:"🔬",density:2.27,tensile:500,yield:500,hardness:1500,cost:150,thermal:400,elastic:800,elong:0,melting:2973,tagline:"White graphene — thermally conducting electrical insulator",story1:"Hexagonal boron nitride shares graphene's layered crystal structure but is a wide-bandgap insulator rather than a conductor. It has become known as white graphene and is the substrate of choice for graphene electronic devices requiring atomically flat, electrically inactive support.",story2:"h-BN's combination of extreme thermal conductivity with electrical insulation is unique among ceramics. Semiconductor packages, EV power electronics, and 5G base station amplifiers generate heat that must be removed without electrical interference — h-BN films and composites solve this problem.",story3:"In powder form, h-BN is known as white graphite — white, lubricious, and slippery, used in high-temperature lubricants and cosmetics. In 2D monolayer form, h-BN is the perfect dielectric for 2D materials heterostructures.",history:[{y:"1842",e:"Balmain first synthesises boron nitride"},{y:"1940s",e:"h-BN powder used as high-temperature lubricant"},{y:"1957",e:"Cubic BN synthesised — harder than diamond for iron cutting"},{y:"2004",e:"h-BN monolayer used as substrate for graphene devices"},{y:"2020s",e:"h-BN thermal interface materials enter EV power electronics"}],facts:["h-BN conducts heat as well as many metals but is completely electrically insulating","Cubic BN is the second hardest material after diamond","h-BN is used in cosmetics as a skin-smoothing ingredient in powder foundation"],apps:["💻 Thermal Management","🔬 2D Electronics","🎨 Cosmetics","⚙️ High-T Lubricants","🔋 EV Power Electronics","🚀 Aerospace"],news:[{tag:"ELECTRONICS",hed:"h-BN Encapsulated Graphene Transistor Breaks Speed Record",deck:"Device achieves 427 GHz cutoff frequency",body:"Boron nitride encapsulated graphene transistors demonstrate 427 GHz intrinsic cutoff frequency — highest of any 2D material device, opening path to terahertz electronics.",date:"February 2025"}]},
+
+  {id:"diamond",name:"Synthetic Diamond CVD",cat:"Ceramics",emoji:"💍",density:3.52,tensile:2800,yield:2800,hardness:10000,cost:5000,thermal:2200,elastic:1050,elong:0,melting:3550,tagline:"The hardest material known — now grown in a laboratory",story1:"Diamond — pure carbon in a face-centred cubic lattice of sp³ bonds — is the hardest natural material, the best thermal conductor, and a wide-bandgap semiconductor. Chemical vapour deposition has made laboratory-grown diamond commercially viable: diamond can now be grown centimetre by centimetre in a microwave plasma reactor.",story2:"CVD diamond wafers are being commercialised as power semiconductor substrates. Diamond's thermal conductivity of 2200 W/mK — five times higher than copper — allows transistors to operate at power densities that would melt any other substrate.",story3:"In cutting and grinding, diamond tools represent the pinnacle of precision machining. Polycrystalline diamond inserts cut silicon, ceramics, and composites that carbide tools cannot. Diamond wire saws slice silicon ingots into wafers thinner than a human hair.",history:[{y:"1797",e:"Tennant proves diamond is pure carbon"},{y:"1955",e:"GE synthesises first industrial diamonds by HPHT"},{y:"1952",e:"CVD diamond first demonstrated"},{y:"1980s",e:"CVD diamond reaches industrial scale"},{y:"2024",e:"CVD diamond power transistors enter qualification"}],facts:["Diamond thermal conductivity 2200 W/mK is 5× higher than copper","Lab-grown CVD diamonds are chemically identical to mined diamonds","Diamond can only be scratched by another diamond"],apps:["💍 Gemstones","✂️ Precision Cutting","💻 Power Electronics","🔊 High-Power RF","⚗️ Electrodes","🔬 Detector Windows"],news:[{tag:"SEMICONDUCTOR",hed:"Diamond Transistor Achieves 100 GHz Operation at 10 kV",deck:"Element Six and Sumitomo qualify diamond power devices",body:"Element Six and Sumitomo Electric demonstrate diamond MOSFET operating at 10 kV blocking voltage and 100 GHz frequency simultaneously — impossible in silicon or SiC.",date:"March 2025"}]},
+
+  {id:"hydroxyapatite",name:"Hydroxyapatite",cat:"Ceramics",emoji:"🦴",density:3.16,tensile:100,yield:100,hardness:500,cost:50,thermal:1.0,elastic:80,elong:0,melting:1670,tagline:"The ceramic your skeleton is made of",story1:"Hydroxyapatite [Ca₁₀(PO₄)₆(OH)₂] is the mineral component of bone and teeth. At approximately 70% by weight in cortical bone, it combines with collagen protein fibres in a hierarchical composite that achieves toughness far beyond either component alone.",story2:"Synthesised hydroxyapatite mimics bone mineral so perfectly that the body accepts it as self — blood vessels grow into porous HA scaffolds, osteoblasts deposit new bone on HA surfaces, and fibrous encapsulation does not occur. HA-coated titanium implants achieve osseointegration three times faster than uncoated surfaces.",story3:"3D-printed HA scaffolds with interconnected porosity allow bone ingrowth throughout the volume. Loaded with growth factors and patient-derived stem cells, these scaffolds regenerate large bone defects that were previously treated only by autologous bone graft.",history:[{y:"1770s",e:"Chemical composition of bone mineral first identified"},{y:"1980s",e:"Synthetic HA coating on hip implants first tested"},{y:"1990s",e:"HA scaffolds for bone tissue engineering"},{y:"2010s",e:"3D-printed HA scaffolds with controlled porosity"},{y:"2024",e:"Injectable HA hydrogel for cartilage regeneration enters trials"}],facts:["Your bones are ~70% hydroxyapatite by weight","Tooth enamel is 96% hydroxyapatite","Fluoride strengthens teeth by substituting into hydroxyapatite, forming fluorapatite"],apps:["🦴 Bone Scaffolds","🦷 Dental Implants","⚕️ Drug Delivery","🔬 Chromatography","💊 Supplements","🧬 Tissue Engineering"],news:[{tag:"REGENERATIVE",hed:"Injectable HA Hydrogel Regenerates Knee Cartilage",deck:"Phase II trial shows cartilage regrowth at 6 months",body:"A phase II clinical trial of injectable HA hydrogel seeded with autologous chondrocytes demonstrates measurable cartilage regeneration in 78% of patients with grade III knee OA.",date:"March 2025"}]},
+
+  /* ── COMPOSITES (continued) ── */
+  {id:"gfrp",name:"Glass Fibre Composite GFRP",cat:"Composites",emoji:"🚤",density:1.8,tensile:500,yield:400,hardness:200,cost:5,thermal:0.3,elastic:25,elong:2,melting:300,tagline:"The affordable composite that sails the seas",story1:"Fiberglass — GFRP — democratised composite materials. Developed commercially in the 1940s, it was cheaper and more shapeable than the metals it replaced. The fibreglass boat hull transformed recreational boating; the first Corvette had a fibreglass body.",story2:"Wind turbine blades reaching 107 metres in length are almost entirely GFRP. The economics of wind energy depends on making blades as long, light, and stiff as possible; GFRP delivers all three at a cost that CFRP cannot match at blade scale.",story3:"The end-of-life challenge for GFRP is profound. Unlike metals, fibreglass cannot be melted and recast. Chemical recycling via solvolysis and cement co-processing are being rapidly scaled to address millions of tonnes of decommissioned wind turbine blades.",history:[{y:"1938",e:"Owens Corning produces commercial glass fibre"},{y:"1942",e:"First fibreglass boat hull built"},{y:"1953",e:"Chevrolet Corvette launches with fibreglass body"},{y:"1970s",e:"Wind turbine blades adopt GFRP"},{y:"2023",e:"Wind blade recycling crisis drives chemical recycling investment"}],facts:["Wind turbine blades up to 107 metres long are entirely GFRP","Fibreglass can be made transparent — aircraft radomes pass radar waves through GFRP","The first Chevrolet Corvette 1953 had a fibreglass body"],apps:["🚤 Boats","🌬️ Wind Turbines","🏠 Construction","🚗 Auto Body","💻 Circuit Boards","🛁 Bathtubs"],news:[{tag:"RECYCLING",hed:"World's First GFRP Wind Blade Chemical Recycling Plant Opens",deck:"Aditya Birla plant processes 6,000 tonnes per year",body:"The world's first dedicated GFRP recycling plant using solvolysis opens in Denmark, processing 6,000 tonnes of decommissioned wind turbine blades annually.",date:"February 2025"}]},
+
+  {id:"concrete",name:"Ultra-High Performance Concrete",cat:"Composites",emoji:"🏗️",density:2.5,tensile:15,yield:15,hardness:900,cost:0.15,thermal:1.8,elastic:50,elong:0,melting:1200,tagline:"The material that builds every city on Earth",story1:"Concrete is the most consumed material in human history after water — over 30 billion tonnes annually, more than four tonnes for every person on Earth. Portland cement binds aggregate into a material that can be cast into any shape and achieves high compressive strength from materials available everywhere globally.",story2:"Ultra-high performance concrete achieves compressive strength above 150 MPa and tensile strength of 15 MPa through elimination of coarse aggregate, use of silica fume, and addition of steel fibres. UHPC bridges require no rebar, have thinner sections, and last over 100 years without maintenance.",story3:"Roman marine concrete made with volcanic ash has remained intact for 2,000 years and actually became stronger through reaction with seawater. Modern researchers studying its microstructure are finding inspiration for new low-carbon cement formulations.",history:[{y:"~7000 BCE",e:"Lime-based cements used in Jordan"},{y:"~200 BCE",e:"Romans develop pozzolanic cement"},{y:"1824",e:"Aspdin patents Portland cement"},{y:"1970s",e:"Superplasticisers enable high-performance concrete"},{y:"1990s",e:"UHPC developed in France"}],facts:["Roman marine concrete has been strengthening for 2,000 years","30 billion tonnes of concrete produced annually — 4 tonnes per person","The Hoover Dam contains enough concrete to build a road coast to coast"],apps:["🏗️ Buildings","🌉 Bridges","🛣️ Roads","🚧 Dams","🚇 Tunnels","⚓ Marine Structures"],news:[{tag:"GREEN",hed:"Carbon-Negative Concrete Absorbs More CO₂ Than It Emits",deck:"Slag cement carbonation curing achieves negative carbon",body:"CarbonCure Technologies demonstrates carbonation curing of slag cement concrete with verified negative lifecycle carbon — absorbing more CO₂ during curing than production emitted.",date:"February 2025"}]},
+
+  {id:"clt",name:"Cross-Laminated Timber CLT",cat:"Composites",emoji:"🌲",density:0.5,tensile:40,yield:35,hardness:400,cost:0.8,thermal:0.13,elastic:12,elong:1,melting:300,tagline:"The engineered wood taking on steel and concrete",story1:"Cross-laminated timber stacks layers of timber boards at 90° to each other, creating structural panels that resist bending in both directions. Each cubic metre of CLT stores approximately 1 tonne of CO₂. The material can substitute for reinforced concrete slabs and walls in multi-storey construction while sequestering carbon rather than emitting it.",story2:"The mass timber revolution is reshaping urban skylines. Brock Commons in Vancouver reached 18 storeys of timber structure in 2017. The Mjøstårnet tower in Norway stands 85 metres — all wood. Building codes have been revised in dozens of countries to allow timber structures above six storeys.",story3:"CNC manufacturing transformed timber construction: CLT panels arrive on site pre-cut to millimetre precision from BIM model files — reducing on-site labour by 25%, construction time by 30%, and generating far less waste than conventional methods.",history:[{y:"1990s",e:"CLT developed in Austria and Germany"},{y:"2009",e:"Stadthaus 8-storey CLT completed in London"},{y:"2017",e:"Brock Commons 18-storey opens in Vancouver"},{y:"2019",e:"Mjøstårnet 85 m becomes world's tallest timber building"},{y:"2023",e:"IBC 2024 allows mass timber to 18 storeys in USA"}],facts:["Each cubic metre of CLT stores approximately 1 tonne of CO₂","CLT construction is 25% faster and produces 70% less waste than concrete","The Mjøstårnet tower in Norway is 85 metres tall — all wood structure"],apps:["🏗️ Multi-Storey Buildings","🏠 Residential","🏢 Commercial","🌉 Timber Bridges","🎭 Auditoriums","🏫 Schools"],news:[{tag:"CONSTRUCTION",hed:"40-Storey Mass Timber Tower Planned for Singapore",deck:"CLT-steel hybrid targets 2028 completion",body:"A 40-storey CLT-steel hybrid tower approved for Singapore's Marina Bay district will become the world's tallest mass timber building.",date:"March 2025"}]},
+
+  /* ── SMART MATERIALS (continued) ── */
+  {id:"piezo",name:"PZT Piezoelectric Ceramic",cat:"Smart Materials",emoji:"🔊",density:7.5,tensile:80,yield:80,hardness:500,cost:40,thermal:1.5,elastic:70,elong:0,melting:1285,tagline:"The ceramic that turns pressure into electricity and back",story1:"Lead zirconate titanate is the piezoelectric workhorse of modern engineering. Its ability to convert mechanical stress to electrical charge — and voltage to mechanical displacement — with efficiency unmatched by any other material makes it the transducer in medical ultrasound, diesel fuel injectors, sonar systems, and atomic force microscopes.",story2:"Medical ultrasound depends entirely on PZT. An array of PZT elements transmits megahertz sound waves into the body then receives echoes — the timing differences allow image reconstruction with millimetre spatial resolution. PZT has allowed physicians to see inside the body without ionising radiation since the 1970s.",story3:"In diesel common-rail fuel injection, PZT actuators move injector needles with sub-microsecond precision, enabling multiple injection events per combustion cycle that reduce emissions. PZT actuators in inkjet printer heads precisely control droplet ejection at kilohertz rates.",history:[{y:"1880",e:"Curie brothers discover piezoelectricity in quartz"},{y:"1950s",e:"PZT ceramics discovered — 100× better than quartz"},{y:"1970s",e:"Medical ultrasound adopts PZT transducers"},{y:"1990s",e:"Common-rail diesel injection uses PZT actuators"},{y:"2000s",e:"PZT energy harvesters for wireless sensors"}],facts:["PZT generates 1,000× more voltage per unit stress than quartz","A piezoelectric floor tile generates 7 W from a single footstep","Quartz watches use piezoelectric oscillators accurate to 0.001 seconds per day"],apps:["🔊 Ultrasound Probes","⛽ Fuel Injectors","🔬 AFM Tips","⌨️ Inkjet Heads","🎤 Microphones","⚡ Energy Harvesting"],news:[{tag:"ENERGY",hed:"Piezoelectric Roadway Generates 400 kWh Per Day",deck:"Innowattech pilot harvests energy from truck traffic",body:"Piezoelectric strips embedded beneath a 100 m Israeli motorway generate 400 kWh daily from passing truck traffic — enough to power 40 homes.",date:"January 2025"}]},
+
+  {id:"liquid-crystal",name:"Liquid Crystal Polymer LCP",cat:"Smart Materials",emoji:"📡",density:1.4,tensile:180,yield:150,hardness:100,cost:18,thermal:0.3,elastic:10,elong:2,melting:280,tagline:"The polymer with crystalline order — enabling 5G",story1:"Liquid crystal polymers exist between solid crystal and isotropic liquid — their chains maintain long-range orientational order while retaining mobility. This unique state gives LCPs exceptional mechanical properties and the lowest dielectric loss of any thermoplastic, making them the enabling material for 5G and automotive radar.",story2:"Every 5G smartphone antenna substrate, every millimetre-wave radar module, and every high-frequency PCB for data centre equipment is LCP. Its exceptionally low dielectric loss (tan δ < 0.002) at GHz frequencies — lower than any other thermoplastic — makes it essential as frequencies push to 77 GHz for radar and 28 GHz for 5G mmWave.",story3:"In mechanical applications, LCPs achieve tensile strengths of 180 MPa with extremely low coefficients of thermal expansion below 4 ppm/°C, comparable to invar metal alloys. This dimensional stability makes LCP connectors the default choice for automotive and aerospace electrical systems.",history:[{y:"1888",e:"Reinitzer discovers liquid crystal state"},{y:"1960s",e:"LCD display principle demonstrated"},{y:"1985",e:"Vectra LCP first commercialised"},{y:"2000s",e:"LCP adopted as 5G substrate material"},{y:"2020s",e:"LCP dominates millimetre-wave antenna substrates"}],facts:["LCP dielectric loss tan δ < 0.002 at GHz is lowest of any thermoplastic","LCP thermal expansion 4 ppm/°C matches invar metal alloy","Every 5G smartphone antenna array substrate is likely LCP film"],apps:["📱 5G Antennas","🚗 Radar Modules","💻 High-Freq PCBs","🔌 Connectors","⚕️ Catheters","✈️ Aerospace Electronics"],news:[{tag:"5G",hed:"LCP Film Enables World's Thinnest 5G mmWave Antenna Module",deck:"Murata and Rogers achieve 0.1 mm substrate at 60 GHz",body:"A joint development produces a 0.1 mm thick LCP substrate for 60 GHz 5G phased array modules, enabling integration into ultra-slim smartphones.",date:"March 2025"}]},
+
+  /* ── NATURAL MATERIALS (continued) ── */
+  {id:"wood",name:"Structural Timber Oak",cat:"Natural Materials",emoji:"🪵",density:0.72,tensile:110,yield:60,hardness:1290,cost:0.5,thermal:0.18,elastic:12,elong:2,melting:300,tagline:"The original structural material — still engineering's benchmark",story1:"Oak has a Brinell hardness of 1290 N/mm² and has been used for the frames of medieval English houses, Viking longships, and the fighting decks of HMS Victory. The timbers of some medieval structures are still bearing load after 800 years. Wood's hierarchical structure creates a natural composite of remarkable sophistication.",story2:"Wood's specific strength rivals many engineering metals. Cellulose microfibrils with tensile strength approaching 7 GPa are bonded by lignin in a structure that optimises load paths as an engineer would design. Densified wood — compressed after delignification — achieves hardness exceeding 12 on the Mohs scale.",story3:"Densified super wood developed at the University of Maryland achieves tensile strength of 600 MPa comparable to titanium alloys and can stop a bullet in the same way as steel armour — at a fraction of the weight and environmental cost.",history:[{y:"~400,000 BCE",e:"Homo sapiens use wood tools"},{y:"~3000 BCE",e:"Egyptian cedar ships sail Mediterranean"},{y:"1065 CE",e:"Westminster Hall hammerbeam roof — 70 m clear span"},{y:"1700s",e:"Oak-framed warships dominate naval warfare"},{y:"2018",e:"Super wood densification demonstrated at Maryland"}],facts:["Ancient oak timber frames in English buildings still bear structural loads after 800+ years","Densified super wood can stop a 9 mm bullet","Wood is the only structural material that sequesters carbon during its growth"],apps:["🏗️ Construction","🚢 Boatbuilding","🪑 Furniture","🎻 Musical Instruments","⚡ Power Poles","🌳 Landscape"],news:[{tag:"MATERIALS",hed:"Densified Super Wood Achieves Bullet-Stopping Performance",deck:"University of Maryland material surpasses steel hardness at 1/6 weight",body:"Delignified and compressed densified wood from Maryland achieves Mohs hardness above 12 and stops 9 mm projectiles — at one-sixth the weight of equivalent steel armour.",date:"January 2025"}]},
+
+  {id:"cork",name:"Cork",cat:"Natural Materials",emoji:"🍷",density:0.12,tensile:1,yield:0.5,hardness:15,cost:2,thermal:0.045,elastic:0.03,elong:40,melting:250,tagline:"Nature's perfect compressible impermeable foam",story1:"Cork is the bark of the cork oak, harvested every nine years without harming the tree. Its cellular structure — 200 million air-filled watertight cells per cubic centimetre — makes it simultaneously compressible, impermeable, and thermally insulating. No synthetic material has matched all these properties simultaneously at comparable cost.",story2:"NASA used cork as thermal protection on the Space Shuttle external tank — the orange foam visible in launch photographs is primarily cork-based. Cork underlays attenuate footfall noise in buildings. Cork composite gaskets seal engines at high temperatures.",story3:"Portugal produces over 50% of world cork from sustainable harvests that maintain biodiversity and sequester carbon. A single cork oak can be harvested 12–16 times in its 200-year lifespan. The cork forest ecosystem supports species including the Iberian lynx.",history:[{y:"~400 BCE",e:"Aristotle notes the floating properties of cork"},{y:"1600s",e:"Cork stoppers for wine bottles standardised"},{y:"1890",e:"Armstrong Cork produces cork floor tiles"},{y:"1960s",e:"NASA uses cork composites for thermal protection"},{y:"2024",e:"Cork composites expand to automotive and aerospace"}],facts:["Cork cells contain 89% air — one of the lightest natural materials","A single cork oak can be harvested every 9 years for 200 years without cutting it","NASA used cork-based thermal protection on the Space Shuttle"],apps:["🍷 Wine Corks","🏗️ Insulation","🚀 Thermal Protection","🎸 Instruments","🏃 Sports Flooring","⚙️ Gaskets"],news:[{tag:"SUSTAINABLE",hed:"Cork Composite Panels Replace Polystyrene Insulation in EU Buildings",deck:"Amorim secures major European construction contract",body:"Amorim Cork Composites secures contracts to supply cork-based insulation panels replacing polystyrene in over 15,000 European social housing units.",date:"March 2025"}]},
+
+  {id:"rubber",name:"Natural Rubber Hevea",cat:"Natural Materials",emoji:"🌿",density:0.92,tensile:30,yield:2,hardness:40,cost:1.8,thermal:0.13,elastic:0.001,elong:650,melting:180,tagline:"The elastic polymer that grows on trees",story1:"Natural rubber is polyisoprene produced by the rubber tree Hevea brasiliensis. The latex sap, tapped by spiral cuts in the bark, contains polyisoprene particles that collected and coagulated produce a tacky, thermoplastic material. Charles Goodyear's discovery of vulcanisation in 1839 transformed it into an industrial material.",story2:"Despite synthetic alternatives filling most technical applications, natural rubber retains advantages no synthetic has fully replicated: its exceptional resilience under repeated deformation makes it indispensable in aircraft tyres and large truck tyres, where heat build-up from hysteresis would cause failure.",story3:"Malaysian and Indonesian rubber plantations supply 90% of global natural rubber. Guayule desert shrub and Russian dandelion are being developed as alternative sources to reduce dependence on Southeast Asian supply chains.",history:[{y:"~1200 CE",e:"Mesoamerican peoples use rubber for balls and waterproofing"},{y:"1736",e:"La Condamine brings first rubber samples to Europe"},{y:"1839",e:"Goodyear discovers vulcanisation accidentally"},{y:"1888",e:"Dunlop invents the pneumatic tyre"},{y:"1942",e:"WWII drives development of synthetic rubber"}],facts:["Natural rubber stretches to 600% of its original length before breaking","Aircraft tyres are natural rubber — synthetic cannot match its low hysteresis","Malaysia and Indonesia supply 90% of world natural rubber"],apps:["🛞 Tyres","✈️ Aircraft Tyres","⚕️ Surgical Gloves","🏭 Industrial Seals","🏸 Sports Equipment","⚗️ Lab Tubing"],news:[{tag:"SUPPLY CHAIN",hed:"Guayule Desert Shrub Qualified as US Domestic Rubber Source",deck:"Bridgestone achieves commercial production from US-grown guayule",body:"Bridgestone Americas achieves commercial-scale natural rubber from Arizona-grown guayule shrubs, reducing automotive industry dependence on Southeast Asian supply chains.",date:"March 2025"}]},
+
+  {id:"nacre",name:"Nacre Mother of Pearl",cat:"Natural Materials",emoji:"🐚",density:2.7,tensile:130,yield:100,hardness:300,cost:200,thermal:1.0,elastic:70,elong:0.5,melting:700,tagline:"Iridescent armour 3000 times tougher than chalk",story1:"Nacre is 95% calcium carbonate — chemically identical to chalk — yet 3,000 times tougher. The mollusc's secret is architecture: aragonite platelets 200–500 nm thick arranged in a brick-and-mortar pattern with organic protein mortar. When a crack attempts to propagate, it must travel around platelet after platelet, dissipating energy at each interface.",story2:"The iridescence of nacre arises from thin-film optical interference: light reflecting from multiple aragonite platelet surfaces at distances comparable to visible light wavelengths interferes constructively. No pigment is involved — the colour comes entirely from structural interference.",story3:"Materials scientists have spent three decades copying nacre's architecture. Ice-templated ceramics and layer-by-layer deposition techniques have produced nacre-mimetic structures achieving fracture toughness 300 times greater than the base ceramic — proving architecture, not composition, is the key to extraordinary toughness.",history:[{y:"Ancient",e:"Nacre used in jewellery across all ancient cultures"},{y:"1977",e:"Currey and Taylor describe nacre's brick-mortar microstructure"},{y:"1990s",e:"Nacre-inspired ceramics demonstrated"},{y:"2008",e:"Ice-templated nacre-like alumina achieved at Berkeley"},{y:"2024",e:"3D-printed nacre composite passes aerospace qualification"}],facts:["Nacre is chemically identical to chalk but 3,000× tougher","The iridescence of pearl is structural colour — no pigment, only light interference","Molluscs deposit nacre at less than 1 micrometre per day — a large pearl takes 5+ years"],apps:["💍 Jewellery","🔬 Bio-inspired Materials","🛡️ Tough Armour","⚕️ Bone Substitutes","🖌️ Structural Pigments","🔬 Photonic Devices"],news:[{tag:"MATERIALS",hed:"3D-Printed Nacre-Inspired Ceramic Passes Aerospace Impact Test",deck:"Brick-mortar alumina achieves 300× toughness of base material",body:"A 3D-printed alumina composite with nacre-inspired brick-and-mortar architecture passes aerospace foreign object damage qualification with 300× higher fracture toughness than conventional alumina.",date:"January 2025"}]},
+];
+
+const CATS = {
+  "Metals":          {icon:"🔩",color:"#1a3a5c",bg:"#e8f0f8"},
+  "Polymers":        {icon:"🧪",color:"#5c3a1a",bg:"#f8f0e8"},
+  "Ceramics":        {icon:"🏺",color:"#3a1a5c",bg:"#f0e8f8"},
+  "Composites":      {icon:"🔀",color:"#1a5c3a",bg:"#e8f8f0"},
+  "Smart Materials": {icon:"⚡",color:"#8b1a1a",bg:"#f8e8e8"},
+  "Natural Materials":{icon:"🌿",color:"#3a5c1a",bg:"#f0f8e8"},
+};
+
+/* ══════════════════════════════════════════════
+   BUILD SIDEBAR INDEXES
+══════════════════════════════════════════════ */
+function buildIndexes(){
+  const grouped={};
+  MATS.forEach(m=>{if(!grouped[m.cat])grouped[m.cat]=[];grouped[m.cat].push(m);});
+  ['mat-index-left','mat-index-right'].forEach((id,side)=>{
+    const el=document.getElementById(id);if(!el)return;
+    let html='';
+    Object.entries(grouped).forEach(([cat,mats])=>{
+      const cfg=CATS[cat];
+      html+=`<div class="rail-hed" style="margin-top:0.5rem;color:${cfg.color}">${cfg.icon} ${cat}</div>`;
+      mats.forEach(m=>{
+        html+=`<div class="idx-item" onclick="loadMat('${m.id}')">
+          <div class="idx-cat">${cat}</div>
+          <div class="idx-name">${m.name}</div>
+          <div class="idx-prop">${m.density} g/cm³ · ${m.tensile} MPa</div>
+        </div>`;
+      });
+    });
+    el.innerHTML=html;
+  });
+}
+
+/* ══════════════════════════════════════════════
+   BUILD CATEGORY GRID
+══════════════════════════════════════════════ */
+function buildCatGrid(){
+  const grouped={};
+  MATS.forEach(m=>{if(!grouped[m.cat])grouped[m.cat]=[];grouped[m.cat].push(m);});
+  const el=document.getElementById('cat-grid');
+  if(!el)return;
+  el.innerHTML=Object.entries(CATS).map(([cat,cfg])=>{
+    const count=(grouped[cat]||[]).length;
+    return `<div class="cat-tile" onclick="filterCat('${cat}')">
+      <div class="cat-tile-icon">${cfg.icon}</div>
+      <div class="cat-tile-name">${cat}</div>
+      <div class="cat-tile-count">${count} materials documented</div>
+      <div class="cat-tile-bar" style="background:${cfg.color}"></div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   FEATURED STRIP — 3 col mini stories
+══════════════════════════════════════════════ */
+function buildFeatured(){
+  const featured = ['steel','graphene','nitinol','cfrp','bamboo','silk'];
+  const el=document.getElementById('featured-strip');if(!el)return;
+  const picks=MATS.filter(m=>featured.includes(m.id)).slice(0,3);
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule-thin)">
+  ${picks.map((m,i)=>{
+    const cfg=CATS[m.cat];
+    return `<div style="padding:0.8rem;${i<2?'border-right:1px solid var(--rule-thin);':''}cursor:pointer;" onclick="loadMat('${m.id}')">
+      <div class="news-tag">${cfg.icon} ${m.cat}</div>
+      <div class="news-hed" style="font-size:1.1rem;cursor:pointer">${m.name}</div>
+      <div class="news-deck">${m.tagline}</div>
+      <div class="news-body" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${m.story1.substring(0,160)}…</div>
+      <div class="news-date byline">Read full article →</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* ══════════════════════════════════════════════
+   FILTER BY CATEGORY
+══════════════════════════════════════════════ */
+function filterCat(cat){
+  const mats=MATS.filter(m=>m.cat===cat);
+  document.getElementById('splash').style.display='none';
+  document.getElementById('mat-detail').style.display='block';
+  const cfg=CATS[cat];
+  document.getElementById('mat-detail').innerHTML=`
+    <div class="art-section-label">${cfg.icon} ${cat} — Complete Survey</div>
+    <div class="splash-head" style="margin-bottom:1rem">
+      <div class="splash-kicker">${cat} · ${mats.length} Materials</div>
+      <h1 class="splash-hed" style="font-size:2.5rem">${cfg.icon} ${cat}</h1>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule-thin)">
+    ${mats.map((m,i)=>`
+      <div style="padding:0.8rem;border-right:${(i%3<2)?'1px solid var(--rule-thin)':'none'};border-bottom:1px solid var(--rule-thin);cursor:pointer;transition:background 0.15s" onclick="loadMat('${m.id}')" onmouseover="this.style.background='var(--paper3)'" onmouseout="this.style.background=''">
+        <div style="font-size:1.8rem;margin-bottom:0.3rem">${m.emoji}</div>
+        <div class="news-hed" style="font-size:0.95rem">${m.name}</div>
+        <div class="news-deck" style="font-size:0.72rem">${m.tagline}</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--ink3);margin-top:0.3rem">${m.density} g/cm³ · ${m.tensile} MPa · $${m.cost}/kg</div>
+      </div>`).join('')}
+    </div>`;
+  window.scrollTo({top:document.getElementById('mat-detail').offsetTop-80,behavior:'smooth'});
+}
+
+/* ══════════════════════════════════════════════
+   LOAD MATERIAL DETAIL
+══════════════════════════════════════════════ */
+function loadMat(id){
+  const m=MATS.find(x=>x.id===id);if(!m)return;
+  const cfg=CATS[m.cat];
+  document.getElementById('splash').style.display='none';
+  document.getElementById('mat-detail').style.display='block';
+
+  const barsHtml = [
+    {l:'Density',v:m.density,u:'g/cm³',max:20,c:'#1a3a5c'},
+    {l:'Tensile Strength',v:m.tensile,u:'MPa',max:3600,c:'#8b1a1a'},
+    {l:'Yield Strength',v:m.yield,u:'MPa',max:3000,c:'#5c3a1a'},
+    {l:'Hardness',v:m.hardness,u:'HV',max:3000,c:'#3a1a5c'},
+    {l:'Elastic Modulus',v:m.elastic,u:'GPa',max:1000,c:'#1a5c3a'},
+    {l:'Thermal Conductivity',v:m.thermal,u:'W/mK',max:5000,c:'#5c5c1a'},
+    {l:'Cost',v:m.cost,u:'$/kg',max:100000,c:'#b8860b'},
+  ].map(p=>`<tr>
+    <td style="font-family:var(--sans);font-size:0.62rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3);padding:0.35rem 0.6rem;border-bottom:1px dotted var(--rule-thin)">${p.l}</td>
+    <td style="padding:0.35rem 0.6rem;border-bottom:1px dotted var(--rule-thin)">
+      <span class="val-num">${p.v.toLocaleString()}</span>
+      <span style="font-family:var(--mono);font-size:0.62rem;color:var(--ink3);margin-left:3px">${p.u}</span>
+      <div class="prop-bar"><div class="prop-bar-fill" style="width:${Math.min(100,(p.v/p.max)*100)}%;background:${p.c}"></div></div>
+    </td>
+  </tr>`).join('');
+
+  const timelineHtml = (m.history||[]).map(h=>`
+    <div class="tl-row">
+      <div class="tl-year">${h.y}</div>
+      <div class="tl-text">${h.e}</div>
+    </div>`).join('');
+
+  const factsHtml = (m.facts||[]).map(f=>`<div class="ff-item">${f}</div>`).join('');
+
+  const appsHtml = (m.apps||[]).map(a=>`<span class="app-tag">${a}</span>`).join('');
+
+  const news0 = m.news&&m.news[0];
+  const newsRest = m.news&&m.news.slice(1)||[];
+
+  document.getElementById('mat-detail').innerHTML = `
+    <!-- SECTION LABEL -->
+    <div class="art-section-label">${cfg.icon} ${m.cat} · Material Analysis</div>
+
+    <!-- ARTICLE HEADER -->
+    <div class="art-kicker">${m.cat} · Special Report · ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+    <h2 class="art-hed">${m.name}</h2>
+    <div class="art-deck">${m.tagline}</div>
+
+    <div class="art-byline-row">
+      <div class="byline">By The Material Tribune Science Desk</div>
+      <div class="byline">Density: ${m.density} g/cm³ · Tensile: ${m.tensile} MPa · Est. Cost: $${m.cost}/kg</div>
+    </div>
+
+    <hr class="rule-thin" style="margin-bottom:0.8rem">
+
+    <!-- MAIN ARTICLE COLUMNS -->
+    <div class="art-cols">
+      <div class="art-col">
+        <p class="drop-cap">${m.story1}</p>
+      </div>
+      <div class="art-col">
+        <p>${m.story2}</p>
+        <div class="pullquote">${m.tagline}</div>
+        <div class="facts-box">
+          <div class="facts-box-hed">Key Properties</div>
+          <div class="facts-box-body">
+            <div class="fact-row"><span class="fact-label">Density</span><span><span class="fact-value">${m.density}</span><span class="fact-unit">g/cm³</span></span></div>
+            <div class="fact-row"><span class="fact-label">Tensile Str.</span><span><span class="fact-value">${m.tensile}</span><span class="fact-unit">MPa</span></span></div>
+            <div class="fact-row"><span class="fact-label">Yield Str.</span><span><span class="fact-value">${m.yield}</span><span class="fact-unit">MPa</span></span></div>
+            <div class="fact-row"><span class="fact-label">Hardness</span><span><span class="fact-value">${m.hardness}</span><span class="fact-unit">HV</span></span></div>
+            <div class="fact-row"><span class="fact-label">Elastic Mod.</span><span><span class="fact-value">${m.elastic}</span><span class="fact-unit">GPa</span></span></div>
+            <div class="fact-row"><span class="fact-label">Thermal</span><span><span class="fact-value">${m.thermal}</span><span class="fact-unit">W/mK</span></span></div>
+            <div class="fact-row"><span class="fact-label">Melting Pt.</span><span><span class="fact-value">${m.melting}</span><span class="fact-unit">°C</span></span></div>
+            <div class="fact-row"><span class="fact-label">Cost</span><span><span class="fact-value">$${m.cost}</span><span class="fact-unit">/kg</span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="art-col">
+        <div class="photo-box">
+          <div class="photo-frame" style="background:linear-gradient(135deg,${cfg.bg},var(--paper3))">${m.emoji}</div>
+          <div class="photo-caption">Fig. 1 — ${m.name} · ${m.cat} class material · Schematic representation</div>
+        </div>
+        <p>${m.story3}</p>
+      </div>
+    </div>
+
+    <hr class="rule-full" style="margin:1rem 0">
+
+    <!-- PROPERTIES TABLE + CHARTS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+      <div class="props-box">
+        <div class="props-box-hed">Full Properties Table</div>
+        <table class="props-tbl"><tbody>${barsHtml}</tbody></table>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-hed">Stress-Strain Curve</div>
+        <div class="chart-inner"><div id="chart-ss-${m.id}" class="chart-plot"></div></div>
+      </div>
+    </div>
+
+    <div class="chart-2col">
+      <div class="chart-box">
+        <div class="chart-box-hed">Properties Radar Profile</div>
+        <div class="chart-inner"><div id="chart-rad-${m.id}" class="chart-plot"></div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-hed">Category Benchmark — Tensile Strength</div>
+        <div class="chart-inner"><div id="chart-bench-${m.id}" class="chart-plot"></div></div>
+      </div>
+    </div>
+
+    <hr class="rule-full" style="margin:1rem 0">
+
+    <!-- NEWS SECTION -->
+    <div class="news-section">
+      <div class="news-section-hed">Latest Research &amp; News — ${m.name}</div>
+      <div class="news-cols">
+        ${news0?`<div class="news-col">
+          <div class="news-tag">${news0.tag}</div>
+          <div class="news-hed">${news0.hed}</div>
+          <div class="news-deck">${news0.deck}</div>
+          <div class="news-body drop-cap">${news0.body}</div>
+          <div class="news-date byline">${news0.date} · The Material Tribune</div>
+        </div>`:'<div class="news-col"><em>No recent news.</em></div>'}
+        ${newsRest.length?`<div class="news-col">${newsRest.map(n=>`
+          <div class="news-mini">
+            <div class="news-tag">${n.tag}</div>
+            <div class="news-mini-hed">${n.hed}</div>
+            <div class="news-mini-body">${n.body.substring(0,160)}…</div>
+            <div class="news-date byline">${n.date}</div>
+          </div>`).join('')}</div>`:'<div class="news-col"></div>'}
+        <div class="news-col">
+          <div style="border:1px solid var(--rule-thin);padding:0.6rem;margin-bottom:0.5rem">
+            <div class="rail-hed">Applications</div>
+            <div class="apps-grid">${appsHtml}</div>
+          </div>
+          <div class="funfacts-box">
+            <div class="funfacts-hed">Did You Know?</div>
+            ${factsHtml}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule-full" style="margin:1rem 0">
+
+    <!-- TIMELINE -->
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin:1rem 0">
+      <div class="timeline-box">
+        <div class="tl-hed">Historical Timeline</div>
+        ${timelineHtml}
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-hed">Cost vs. Strength Map — Similar Materials</div>
+        <div class="chart-inner"><div id="chart-cost-${m.id}" style="width:100%;height:220px"></div></div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(()=>tryCharts(m,0), 100);
+  window.scrollTo({top:document.getElementById('mat-detail').offsetTop-80,behavior:'smooth'});
+}
+
+function tryCharts(m,attempt){
+  if(typeof Plotly!=='undefined'){
+    renderSS(m);renderRadar(m);renderBench(m);renderCostStr(m);
+  } else if(attempt<25){
+    setTimeout(()=>tryCharts(m,attempt+1),300);
+  }
+}
+
+function getPlotLayout(extra){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const paper=isDark?'rgba(0,0,0,0)':'rgba(0,0,0,0)';
+  const textColor=isDark?'#d8c8a8':'#4a3820';
+  const gridColor=isDark?'rgba(255,255,255,0.07)':'rgba(26,16,8,0.08)';
+  return Object.assign({
+    paper_bgcolor:paper,plot_bgcolor:paper,
+    font:{family:'Source Serif 4, Georgia, serif',color:textColor,size:10},
+    margin:{l:45,r:15,t:15,b:45},
+    xaxis:{gridcolor:gridColor,zeroline:false,linecolor:gridColor},
+    yaxis:{gridcolor:gridColor,zeroline:false,linecolor:gridColor},
+  },extra||{});
+}
+
+function renderSS(m){
+  const E=m.elastic*1000,sy=m.yield,suts=m.tensile,eu=Math.max(0.005,m.elong/100);
+  const xs=[],ys=[];
+  for(let i=0;i<=120;i++){
+    const e=(eu*i)/120;
+    const ey=sy/E;
+    let s=e<=ey?E*e:sy+(suts-sy)*(3*Math.pow((e-ey)/(eu-ey),2)-2*Math.pow((e-ey)/(eu-ey),3));
+    xs.push(+(e*100).toFixed(3));ys.push(+s.toFixed(1));
+  }
+  const cfg=CATS[m.cat];
+  const lay=getPlotLayout({
+    xaxis:{title:'Strain (%)',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    yaxis:{title:'Stress (MPa)',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    shapes:[{type:'line',x0:m.yield/E*100,x1:m.yield/E*100,y0:0,y1:m.yield,line:{color:cfg.color,dash:'dot',width:1}}],
+    annotations:[{x:m.yield/E*100,y:m.yield,text:'σ_y',showarrow:true,arrowcolor:cfg.color,font:{color:cfg.color,size:9},arrowsize:0.8}]
+  });
+  Plotly.newPlot(`chart-ss-${m.id}`,[{x:xs,y:ys,mode:'lines',name:m.name,line:{color:cfg.color,width:2.5},fill:'tozeroy',fillcolor:cfg.color+'18'}],lay,{responsive:true,displayModeBar:false});
+}
+
+function renderRadar(m){
+  const lay=getPlotLayout({
+    polar:{bgcolor:'rgba(0,0,0,0)',
+      radialaxis:{visible:true,range:[0,10],gridcolor:'rgba(26,16,8,0.1)',color:'#a89878'},
+      angularaxis:{gridcolor:'rgba(26,16,8,0.1)',color:'#a89878'}
+    },margin:{l:30,r:30,t:25,b:25},showlegend:false
+  });
+  delete lay.xaxis;delete lay.yaxis;
+  const cfg=CATS[m.cat];
+  const cats=['Strength','Hardness','Toughness','Thermal','Lightness','Cost-Eff'];
+  const norm=(v,mx)=>Math.min(10,(v/mx)*10);
+  const vals=[norm(m.tensile,3600),norm(m.hardness,3000),norm(m.elong,100),norm(m.thermal,5000),norm(20-Math.min(20,m.density),20),norm(1000/Math.max(0.01,m.cost),1000)];
+  Plotly.newPlot(`chart-rad-${m.id}`,[{type:'scatterpolar',r:[...vals,vals[0]],theta:[...cats,cats[0]],fill:'toself',fillcolor:cfg.color+'28',line:{color:cfg.color,width:2},name:m.name}],lay,{responsive:true,displayModeBar:false});
+}
+
+function renderBench(m){
+  const catMats=MATS.filter(x=>x.cat===m.cat);
+  const cfg=CATS[m.cat];
+  const colors=catMats.map(x=>x.id===m.id?cfg.color:cfg.color+'55');
+  const lay=getPlotLayout({
+    xaxis:{title:'',gridcolor:'rgba(26,16,8,0.08)',zeroline:false,tickangle:-30,tickfont:{size:8}},
+    yaxis:{title:'Tensile Strength (MPa)',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    margin:{l:55,r:15,t:15,b:70},
+  });
+  Plotly.newPlot(`chart-bench-${m.id}`,[{
+    type:'bar',x:catMats.map(x=>x.name),y:catMats.map(x=>x.tensile),
+    marker:{color:colors,line:{color:colors.map(c=>c.length>7?c.slice(0,7):c),width:1}},
+    name:'Tensile Strength'
+  }],lay,{responsive:true,displayModeBar:false});
+}
+
+function renderCostStr(m){
+  const catMats=MATS.filter(x=>x.cat===m.cat);
+  const cfg=CATS[m.cat];
+  const lay=getPlotLayout({
+    xaxis:{title:'Cost ($/kg)',type:'log',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    yaxis:{title:'Tensile Strength (MPa)',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    margin:{l:55,r:15,t:15,b:45},
+  });
+  Plotly.newPlot(`chart-cost-${m.id}`,[{
+    type:'scatter',mode:'markers+text',
+    x:catMats.map(x=>x.cost),y:catMats.map(x=>x.tensile),
+    text:catMats.map(x=>x.name),textposition:'top center',textfont:{size:8},
+    marker:{size:catMats.map(x=>x.id===m.id?14:8),color:catMats.map(x=>x.id===m.id?cfg.color:cfg.color+'66'),symbol:catMats.map(x=>x.id===m.id?'diamond':'circle')},
+  }],lay,{responsive:true,displayModeBar:false});
+}
+
+/* ══════════════════════════════════════════════
+   COMPARE TABLE
+══════════════════════════════════════════════ */
+function renderCompare(){
+  const cat=document.getElementById('cmp-cat').value;
+  let mats=cat==='all'?MATS:MATS.filter(m=>m.cat===cat);
+  const keys=['density','tensile','yield','hardness','elastic','thermal','cost'];
+  const hdrs=['Material','Category','Density\ng/cm³','Tensile\nMPa','Yield\nMPa','Hard.\nHV','Elastic\nGPa','Thermal\nW/mK','Cost\n$/kg'];
+  const maxV={};
+  keys.forEach(k=>maxV[k]=Math.max(...mats.map(m=>m[k])));
+  const html=`<table class="compare-tbl">
+    <thead><tr>${hdrs.map(h=>`<th style="white-space:pre">${h}</th>`).join('')}</tr></thead>
+    <tbody>${mats.map(m=>{
+      const cfg=CATS[m.cat];
+      return `<tr>
+        <td class="mat-name-cell" onclick="loadMat('${m.id}');switchPage('hub')">${m.emoji} ${m.name}</td>
+        <td style="color:${cfg.color};font-family:var(--sans);font-size:0.65rem;font-weight:600">${cfg.icon} ${m.cat}</td>
+        ${keys.map(k=>`<td class="${m[k]===maxV[k]?'best':''}">${m[k].toLocaleString()}</td>`).join('')}
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+  document.getElementById('compare-tbl-area').innerHTML=html;
+  function tryAshby(a){
+    if(typeof Plotly!=='undefined') renderAshby(mats);
+    else if(a<25) setTimeout(()=>tryAshby(a+1),300);
+  }
+  setTimeout(()=>tryAshby(0),100);
+}
+
+function renderAshby(mats){
+  const traces=Object.entries(CATS).map(([cat,cfg])=>{
+    const cm=mats.filter(m=>m.cat===cat);
+    if(!cm.length)return null;
+    return {name:cat,x:cm.map(m=>m.density),y:cm.map(m=>m.tensile),text:cm.map(m=>m.name),
+      mode:'markers+text',type:'scatter',textposition:'top center',textfont:{size:8,color:cfg.color},
+      marker:{size:cm.map(m=>Math.max(7,Math.min(18,Math.log(m.elastic+1)*3))),color:cfg.color,opacity:0.8,line:{color:cfg.color,width:1}}};
+  }).filter(Boolean);
+  const lay=getPlotLayout({
+    xaxis:{title:'Density (g/cm³)',type:'log',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    yaxis:{title:'Tensile Strength (MPa)',type:'log',gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    margin:{l:60,r:20,t:20,b:55},legend:{font:{size:9}},
+    annotations:[{x:0.5,y:1.05,xref:'paper',yref:'paper',text:'Bubble size ∝ Elastic Modulus',showarrow:false,font:{size:9}}]
+  });
+  Plotly.newPlot('ashby-chart',traces,lay,{responsive:true,displayModeBar:false});
+}
+
+/* ══════════════════════════════════════════════
+   VIRTUAL LAB
+══════════════════════════════════════════════ */
+let mixComps=[];let mixCtr=0;
+function initLab(){addMixComp();addMixComp();}
+
+function addMixComp(){
+  if(mixComps.length>=6){toast('Maximum 6 components');return;}
+  mixCtr++;
+  mixComps.push({id:mixCtr,matId:MATS[0].id,pct:50});
+  renderMixComps();
+}
+
+function removeMixComp(id){
+  if(mixComps.length<=2){toast('Minimum 2 components');return;}
+  mixComps=mixComps.filter(c=>c.id!==id);
+  renderMixComps();
+}
+
+function renderMixComps(){
+  const opts=MATS.map(m=>`<option value="${m.id}">${m.emoji} ${m.name}</option>`).join('');
+  document.getElementById('mix-components').innerHTML=mixComps.map((c,i)=>`
+    <div class="mix-comp">
+      <div class="mix-comp-head">
+        <div class="comp-num">${i+1}</div>
+        <select class="mat-select" id="msel-${c.id}" onchange="updMat(${c.id},this.value)">${opts}</select>
+        <div class="remove-comp" onclick="removeMixComp(${c.id})">✕</div>
+      </div>
+      <div class="mix-comp-body">
+        <div class="slider-row">
+          <input type="range" class="mix-slider" min="1" max="100" value="${c.pct}"
+            id="mslide-${c.id}" oninput="updPct(${c.id},this.value)">
+          <span class="pct-lbl" id="mpct-${c.id}">${c.pct}%</span>
+        </div>
+      </div>
+    </div>`).join('');
+  mixComps.forEach(c=>{const s=document.getElementById(`msel-${c.id}`);if(s)s.value=c.matId;});
+  updateTotal();
+}
+
+function updMat(id,v){const c=mixComps.find(x=>x.id===id);if(c)c.matId=v;}
+function updPct(id,v){
+  const c=mixComps.find(x=>x.id===id);
+  if(c){c.pct=parseInt(v);document.getElementById(`mpct-${id}`).textContent=v+'%';}
+  updateTotal();
+}
+function updateTotal(){
+  const total=mixComps.reduce((s,c)=>s+c.pct,0);
+  const fill=document.getElementById('pct-fill');
+  const num=document.getElementById('pct-total-num');
+  const warn=document.getElementById('pct-warn');
+  if(fill){fill.style.width=Math.min(100,total)+'%';fill.style.background=total===100?'#228833':total>100?'#8b1a1a':'#1a3a5c';}
+  if(num)num.textContent=total+'%';
+  if(warn)warn.style.display=total!==100?'block':'none';
+}
+
+function toggleFmla(btn){
+  const body=document.getElementById('fmla-body');
+  const arrow=document.getElementById('fmla-arrow');
+  body.classList.toggle('open');
+  if(arrow)arrow.textContent=body.classList.contains('open')?'▼':'▶';
+}
+
+function runMix(){
+  const total=mixComps.reduce((s,c)=>s+c.pct,0);
+  if(total!==100){toast('⚠ Percentages must total exactly 100%');return;}
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(()=>{document.getElementById('overlay').classList.remove('show');computeMix();},1400);
+}
+
+function computeMix(){
+  const fracs=mixComps.map(c=>({mat:MATS.find(m=>m.id===c.matId),v:c.pct/100}));
+  const R=(v,d=2)=>Math.round(v*Math.pow(10,d))/Math.pow(10,d);
+  const mix={
+    density:R(fracs.reduce((s,f)=>s+f.v*f.mat.density,0)),
+    tensile:R(fracs.reduce((s,f)=>s+f.v*f.mat.tensile,0)),
+    yield:R(fracs.reduce((s,f)=>s+f.v*f.mat.yield,0)),
+    hardness:R(fracs.reduce((s,f)=>s+f.v*f.mat.hardness,0)),
+    elastic:R(fracs.reduce((s,f)=>s+f.v*f.mat.elastic,0)),
+    thermal:R(fracs.reduce((s,f)=>s+f.v*f.mat.thermal,0)),
+    cost:R(fracs.reduce((s,f)=>s+f.v*f.mat.cost,0)),
+    elong:R(fracs.reduce((s,f)=>s+f.v*f.mat.elong,0)),
+  };
+  const compStr=fracs.map(f=>`${f.mat.name} (${Math.round(f.v*100)}%)`).join(' + ');
+  const hue=Math.round(fracs.reduce((s,f)=>s+f.v*180,0));
+  const mixColor=`hsl(${hue},60%,35%)`;
+  renderMixResults(mix,compStr,fracs,mixColor);
+}
+
+function renderMixResults(mix,compStr,fracs,mc){
+  const beakers=fracs.map(f=>{
+    const cfg=CATS[f.mat.cat];
+    return `<div class="beaker-wrap">
+      <div class="beaker"><div class="beaker-fill" style="height:${Math.round(f.v*80)}%;background:${cfg.color}88"></div></div>
+      <div class="beaker-pct">${Math.round(f.v*100)}%</div>
+      <div class="beaker-label">${f.mat.name}</div>
+    </div>`;
+  }).join('');
+
+  const propCards=[
+    {l:'DENSITY',v:mix.density,u:'g/cm³'},
+    {l:'TENSILE STR.',v:mix.tensile,u:'MPa'},
+    {l:'YIELD STR.',v:mix.yield,u:'MPa'},
+    {l:'HARDNESS',v:mix.hardness,u:'HV'},
+    {l:'ELASTIC MOD.',v:mix.elastic,u:'GPa'},
+    {l:'THERMAL',v:mix.thermal,u:'W/mK'},
+    {l:'COST',v:mix.cost,u:'$/kg'},
+    {l:'ELONGATION',v:mix.elong,u:'%'},
+  ].map(p=>`<div class="rpc">
+    <div class="rpc-label">${p.l}</div>
+    <div class="rpc-val">${p.v.toLocaleString()}</div>
+    <div class="rpc-unit">${p.u}</div>
+  </div>`).join('');
+
+  const matName=fracs.map(f=>f.mat.name.split(' ')[0]).join('-')+' COMPOSITE';
+
+  document.getElementById('lab-results').innerHTML=`
+    <div class="art-section-label">⚗ Mixture Result — Computed via Rule of Mixtures</div>
+    <div class="art-byline-row">
+      <div>
+        <h3 style="font-family:var(--display);font-size:2rem;font-weight:900;line-height:1">${matName}</h3>
+        <div class="byline">${compStr}</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <button class="btn-export" onclick="exportPDF()">📄 Export PDF</button>
+      </div>
+    </div>
+
+    <div class="beakers-section">
+      <div class="beakers-hed">COMPOSITION VISUALIZATION</div>
+      <div class="beakers-row">
+        ${beakers}
+        <div class="mix-arrow">→</div>
+        <div class="beaker-wrap">
+          <div class="beaker-result">
+            <div class="beaker-fill" style="height:90%;background:${mc}88;animation:riseup 0.8s ease"></div>
+          </div>
+          <div class="beaker-pct" style="color:${mc}">100%</div>
+          <div class="beaker-label" style="color:${mc}">MIXTURE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-props-grid">${propCards}</div>
+
+    <div class="lab-chart2">
+      <div class="chart-box">
+        <div class="chart-box-hed">TENSILE CONTRIBUTION BY COMPONENT</div>
+        <div class="chart-inner"><div id="lc-pie" style="width:100%;height:250px"></div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-hed">PROPERTIES COMPARISON — MIXTURE vs COMPONENTS</div>
+        <div class="chart-inner"><div id="lc-bar" style="width:100%;height:250px"></div></div>
+      </div>
+    </div>
+
+    <div style="border:1px solid var(--rule-thin);padding:0.8rem;margin-top:1rem;background:var(--paper2)">
+      <div class="tl-hed">Calculation Methodology</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;margin-top:0.5rem">
+      ${[['Density','ρ_mix = Σ(Vᵢ·ρᵢ)','Exact for all mixture types'],
+         ['Tensile/Yield','σ = Σ(Vᵢ·σᵢ)','Rule of mixtures — parallel fibres'],
+         ['Elastic Modulus','E = Σ(Vᵢ·Eᵢ)','Voigt upper bound'],
+         ['Thermal','k = Σ(Vᵢ·kᵢ)','Parallel thermal model'],
+         ['Hardness','H = Σ(Vᵢ·Hᵢ)','Weighted empirical average'],
+         ['Cost','C = Σ(Vᵢ·Cᵢ)','Volume-weighted pricing'],
+      ].map(([n,eq,note])=>`
+        <div style="border:1px solid var(--rule-thin);padding:0.5rem;background:var(--paper)">
+          <div style="font-family:var(--sans);font-size:0.58rem;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:4px">${n}</div>
+          <div class="formula-eq" style="margin:3px 0">${eq}</div>
+          <div style="font-size:0.7rem;color:var(--ink3);line-height:1.4">${note}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  `;
+  if(!document.getElementById('rise-anim')){
+    const s=document.createElement('style');s.id='rise-anim';
+    s.textContent='@keyframes riseup{from{height:0}to{height:90%}}';
+    document.head.appendChild(s);
+  }
+  function tryLab(a){
+    if(typeof Plotly!=='undefined') renderLabCharts(mix,fracs,mc);
+    else if(a<25) setTimeout(()=>tryLab(a+1),300);
+  }
+  setTimeout(()=>tryLab(0),100);
+}
+
+function renderLabCharts(mix,fracs,mc){
+  const lay=getPlotLayout({margin:{l:15,r:15,t:20,b:15}});
+  const pieLay={...lay,showlegend:true,legend:{font:{size:8}}};
+  delete pieLay.xaxis;delete pieLay.yaxis;
+  Plotly.newPlot('lc-pie',[{
+    type:'pie',hole:0.35,
+    labels:fracs.map(f=>f.mat.name),
+    values:fracs.map(f=>f.v*f.mat.tensile),
+    marker:{colors:fracs.map(f=>CATS[f.mat.cat].color)},
+    textfont:{size:9},
+  }],pieLay,{responsive:true,displayModeBar:false});
+
+  const propK=['density','tensile','yield','hardness','elastic'];
+  const propL=['Density','Tensile','Yield','Hardness','Elastic'];
+  const bLay=getPlotLayout({
+    barmode:'group',margin:{l:45,r:10,t:15,b:60},
+    xaxis:{tickmode:'array',tickvals:[0,1,2,3,4],ticktext:propL,gridcolor:'rgba(26,16,8,0.08)',zeroline:false,tickfont:{size:8}},
+    yaxis:{gridcolor:'rgba(26,16,8,0.08)',zeroline:false},
+    legend:{font:{size:8}}
+  });
+  const bTraces=[
+    ...fracs.map(f=>({name:f.mat.name,x:[0,1,2,3,4],y:propK.map(k=>f.mat[k]),type:'bar',marker:{color:CATS[f.mat.cat].color+'99'}})),
+    {name:'MIXTURE',x:[0,1,2,3,4],y:propK.map(k=>mix[k]),type:'bar',marker:{color:mc,line:{color:mc,width:1}}},
+  ];
+  Plotly.newPlot('lc-bar',bTraces,bLay,{responsive:true,displayModeBar:false});
+}
+
+/* ══════════════════════════════════════════════
+   PDF EXPORT
+══════════════════════════════════════════════ */
+function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text('The Material Tribune',20,18);
+  doc.setFont('helvetica','italic');doc.setFontSize(11);
+  doc.text('Virtual Mixture Laboratory Report',20,26);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text('Generated: '+new Date().toLocaleDateString(),20,33);
+  doc.setDrawColor(26,16,8);doc.line(20,36,190,36);
+  doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('Mixture Composition:',20,44);
+  let y=52;
+  mixComps.forEach(c=>{
+    const m=MATS.find(x=>x.id===c.matId);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    doc.text('• '+m.name+': '+c.pct+'%',25,y);y+=7;
+  });
+  doc.line(20,y,190,y);y+=8;
+  const total=mixComps.reduce((s,c)=>s+c.pct,0);
+  if(total===100){
+    const fracs=mixComps.map(c=>({mat:MATS.find(m=>m.id===c.matId),v:c.pct/100}));
+    doc.setFont('helvetica','bold');doc.setFontSize(13);
+    doc.text('Calculated Properties (Rule of Mixtures):',20,y);y+=8;
+    const props=[
+      ['Density',fracs.reduce((s,f)=>s+f.v*f.mat.density,0).toFixed(2),'g/cm³'],
+      ['Tensile Strength',fracs.reduce((s,f)=>s+f.v*f.mat.tensile,0).toFixed(0),'MPa'],
+      ['Yield Strength',fracs.reduce((s,f)=>s+f.v*f.mat.yield,0).toFixed(0),'MPa'],
+      ['Hardness',fracs.reduce((s,f)=>s+f.v*f.mat.hardness,0).toFixed(0),'HV'],
+      ['Elastic Modulus',fracs.reduce((s,f)=>s+f.v*f.mat.elastic,0).toFixed(1),'GPa'],
+      ['Thermal Conductivity',fracs.reduce((s,f)=>s+f.v*f.mat.thermal,0).toFixed(2),'W/mK'],
+      ['Cost','$'+fracs.reduce((s,f)=>s+f.v*f.mat.cost,0).toFixed(2),'/kg'],
+    ];
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    props.forEach(([l,v,u])=>{doc.text(l+': '+v+' '+u,25,y);y+=7;});
+  }
+  y+=4;doc.line(20,y,190,y);y+=6;
+  doc.setFont('helvetica','italic');doc.setFontSize(8);
+  doc.text('Properties via Rule of Mixtures (Voigt model). Verify with experimental data before engineering use.',20,y,{maxWidth:170});
+  doc.text('The Material Tribune — Material Science Hub & Virtual Lab',20,285);
+  doc.save('MaterialTribune_Lab_Report.pdf');
+  toast('📄 PDF exported!');
+}
+
+/* ══════════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════════ */
+function switchPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.sec-tab').forEach(t=>t.classList.remove('active'));
+  const map={hub:'Front Page',lab:'⚗ Lab',compare:'⚖ Compare'};
+  document.querySelectorAll('.sec-tab').forEach(t=>{
+    if(t.textContent.trim()===map[name]||t.textContent.includes(name==='lab'?'Lab':name==='compare'?'Compare':'Front'))
+      t.classList.add('active');
+  });
+  if(name==='compare') setTimeout(renderCompare,50);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleTheme(){
+  const html=document.documentElement;
+  const cur=html.getAttribute('data-theme');
+  html.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  document.getElementById('theme-label').textContent=cur==='dark'?'NIGHT MODE':'DAY MODE';
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function setDates(){
+  const d=new Date();
+  const str=d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+  const el=document.getElementById('live-date');if(el)el.textContent=str;
+  const mel=document.getElementById('meta-date');if(mel)mel.textContent=str+' · 10 CENTS';
+}
+
+/* Plotly fallback loader */
+(function(){
+  function tryFallback(){
+    if(typeof Plotly==='undefined'){
+      const s=document.createElement('script');
+      s.src='https://unpkg.com/plotly.js-dist@2.27.1/plotly.min.js';
+      document.head.appendChild(s);
+    }
+  }
+  window.addEventListener('load',function(){setTimeout(tryFallback,500);});
+})();
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  setDates();
+  buildIndexes();
+  buildCatGrid();
+  buildFeatured();
+  initLab();
+});
+</script>
+</body>
+</html>
